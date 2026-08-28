@@ -62,11 +62,11 @@ function renderDiagnostic() {
   app.innerHTML = `
     <section class="view">
       <div class="card intro-card">
-        <h2>${attemptedSkills ? "Repetir el diagnóstico" : "Diagnóstico inicial"}</h2>
+        <h2>${attemptedSkills ? "Retake the diagnostic / Repetir el diagnóstico" : "Initial diagnostic / Diagnóstico inicial"}</h2>
         <p>${attemptedSkills
-          ? "Vuelve a tomar el diagnóstico cuando quieras — mide tu nivel actual en cada área y actualiza tu progreso."
-          : "Un vistazo rápido y honesto a dónde estás hoy. Unas 24 preguntas mezclando temas de Español 1–2 y un poco más. Sin presión — es solo un punto de partida."}</p>
-        <button class="btn-primary" id="startDiag">Empezar diagnóstico</button>
+          ? "Retake the diagnostic anytime — it measures your current level in each area and updates your progress."
+          : "A quick, honest look at where you stand today. About 24 questions mixing Spanish 1–2 topics and a bit beyond. No pressure — it's just a starting point."}</p>
+        <button class="btn-primary" id="startDiag">Start diagnostic / Empezar diagnóstico</button>
       </div>
     </section>
   `;
@@ -84,14 +84,14 @@ function renderDiagQuestion() {
   app.innerHTML = `
     <section class="view">
       <div class="progress-bar"><div class="progress-fill" style="width:${(diagIndex / diagQueue.length) * 100}%"></div></div>
-      <p class="q-counter">Pregunta ${diagIndex + 1} de ${diagQueue.length} · <span class="skill-pill">${skillLabel(q.skill)}</span></p>
+      <p class="q-counter">Question ${diagIndex + 1} of ${diagQueue.length} <span class="es-note">/ Pregunta ${diagIndex + 1} de ${diagQueue.length}</span> · <span class="skill-pill">${skillLabel(q.skill)}</span></p>
       <div class="card question-card">
         <h3>${q.prompt}</h3>
         <div class="options" id="options">
           ${q.options.map((opt, i) => `<button class="option-btn" data-i="${i}">${opt}</button>`).join("")}
         </div>
         <div class="explain-box" id="explainBox" style="display:none;"></div>
-        <button class="btn-primary" id="nextBtn" style="display:none;">Siguiente</button>
+        <button class="btn-primary" id="nextBtn" style="display:none;">Next / Siguiente</button>
       </div>
     </section>
   `;
@@ -110,7 +110,7 @@ function renderDiagQuestion() {
       });
       const box = $("#explainBox");
       box.style.display = "block";
-      box.innerHTML = `<strong>${correct ? "¡Correcto!" : "No exactamente."}</strong> ${q.explain}`;
+      box.innerHTML = `<strong>${correct ? "Correct! / ¡Correcto!" : "Not quite / No exactamente."}</strong> ${q.explain}`;
       $("#nextBtn").style.display = "inline-block";
     });
   });
@@ -121,7 +121,7 @@ function renderDiagQuestion() {
 }
 
 async function renderDiagSummary() {
-  app.innerHTML = `<section class="view"><div class="card"><h2>Calculando resultados…</h2></div></section>`;
+  app.innerHTML = `<section class="view"><div class="card"><h2>Calculating results… / Calculando resultados…</h2></div></section>`;
   for (const r of diagResults) {
     await DB.recordAttempt(r.skill, r.correct, "diagnostic");
   }
@@ -149,11 +149,11 @@ async function renderDiagSummary() {
   app.innerHTML = `
     <section class="view">
       <div class="card">
-        <h2>Resultados del diagnóstico</h2>
-        <p class="big-stat">${totalCorrect} / ${diagResults.length} correctas</p>
+        <h2>Diagnostic results / Resultados del diagnóstico</h2>
+        <p class="big-stat">${totalCorrect} / ${diagResults.length} correct</p>
         <div class="skill-rows">${rows}</div>
-        <p class="muted">Tus lecciones recomendadas ahora reflejan estas áreas — empieza por las más bajas.</p>
-        <button class="btn-primary" id="goLessons">Ver lecciones recomendadas</button>
+        <p class="muted">Your recommended lessons now reflect these areas — start with the lowest ones.</p>
+        <button class="btn-primary" id="goLessons">See recommended lessons / Ver lecciones recomendadas</button>
       </div>
     </section>
   `;
@@ -182,18 +182,18 @@ async function renderLessons() {
         <div class="lesson-card ${done ? "done" : ""}" data-skill="${skill.id}" data-index="${i}">
           <div class="lesson-card-top">
             <span class="skill-pill">${skill.label}</span>
-            ${score !== undefined ? `<span class="mini-score" style="color:${scoreColor(score)}">${score}%</span>` : `<span class="mini-score muted">sin datos</span>`}
+            ${score !== undefined ? `<span class="mini-score" style="color:${scoreColor(score)}">${score}%</span>` : `<span class="mini-score muted">no data / sin datos</span>`}
           </div>
           <h3>${lesson.title}</h3>
-          ${done ? `<span class="done-tag">✓ completada</span>` : `<button class="btn-secondary open-lesson">Abrir lección</button>`}
+          ${done ? `<span class="done-tag">✓ completed / completada</span>` : `<button class="btn-secondary open-lesson">Open lesson / Abrir lección</button>`}
         </div>`;
     }).join("");
   }).join("");
 
   app.innerHTML = `
     <section class="view">
-      <h2 class="section-title">Lecciones recomendadas</h2>
-      <p class="muted">Ordenadas de tu área más débil a la más fuerte. Completa el diagnóstico primero para una recomendación más precisa.</p>
+      <h2 class="section-title">Recommended lessons / Lecciones recomendadas</h2>
+      <p class="muted">Ordered from your weakest area to your strongest. Complete the diagnostic first for a more accurate recommendation.</p>
       <div class="lesson-grid">${cards}</div>
     </section>
   `;
@@ -210,25 +210,25 @@ function renderLessonDetail(skillId, index) {
   const key = `${skillId}-${index}`;
   app.innerHTML = `
     <section class="view">
-      <button class="btn-link" id="backToLessons">← Volver a lecciones</button>
+      <button class="btn-link" id="backToLessons">← Back to lessons / Volver a lecciones</button>
       <div class="card">
         <span class="skill-pill">${skillLabel(skillId)}</span>
         <h2>${lesson.title}</h2>
         <p>${lesson.explain}</p>
-        <h4>Ejemplos</h4>
+        <h4>Examples / Ejemplos</h4>
         <ul class="example-list">${lesson.examples.map(e => `<li>${e}</li>`).join("")}</ul>
-        <h4>Practica</h4>
+        <h4>Practice / Practica</h4>
         <div id="practiceArea">
           ${lesson.practice.map((p, i) => `
             <div class="practice-item" data-i="${i}">
               <label>${p.prompt}</label>
               <input type="text" class="practice-input" autocomplete="off" spellcheck="false" />
-              <button class="btn-secondary check-btn">Revisar</button>
+              <button class="btn-secondary check-btn">Check / Revisar</button>
               <span class="practice-feedback"></span>
             </div>
           `).join("")}
         </div>
-        <button class="btn-primary" id="completeLesson">Marcar lección como completada</button>
+        <button class="btn-primary" id="completeLesson">Mark lesson complete / Marcar lección como completada</button>
       </div>
     </section>
   `;
@@ -242,7 +242,7 @@ function renderLessonDetail(skillId, index) {
       const expected = lesson.practice[i].answer;
       const ok = norm(input) === norm(expected) || norm(expected).includes(norm(input)) && norm(input).length > 2;
       const fb = item.querySelector(".practice-feedback");
-      fb.textContent = ok ? "✓ bien" : `✗ respuesta esperada: ${expected}`;
+      fb.textContent = ok ? "✓ correct / bien" : `✗ expected / respuesta esperada: ${expected}`;
       fb.className = "practice-feedback " + (ok ? "ok" : "bad");
     });
   });
@@ -265,7 +265,7 @@ async function renderProgress() {
     const score = s?.score ?? 0;
     const has = s !== undefined;
     return `
-      <div class="stamp ${has ? "" : "stamp-empty"}" style="--stamp-color:${scoreColor(score)}; --rot:${(skill.id.length * 13) % 10 - 5}deg" title="${skill.label}: ${has ? score + "%" : "sin practicar"}">
+      <div class="stamp ${has ? "" : "stamp-empty"}" style="--stamp-color:${scoreColor(score)}; --rot:${(skill.id.length * 13) % 10 - 5}deg" title="${skill.label}: ${has ? score + "%" : "not practiced yet"}">
         <span class="stamp-score">${has ? score + "%" : "—"}</span>
         <span class="stamp-label">${skill.label}</span>
       </div>`;
@@ -296,18 +296,18 @@ async function renderProgress() {
 
   app.innerHTML = `
     <section class="view">
-      <h2 class="section-title">Progreso</h2>
+      <h2 class="section-title">Progress / Progreso</h2>
       <div class="stats-row">
-        <div class="stat-box"><span class="stat-num">${overallAvg}%</span><span class="stat-label">dominio general</span></div>
-        <div class="stat-box"><span class="stat-num">${overall.reduce((s, r) => s + r.attempts, 0)}</span><span class="stat-label">preguntas practicadas</span></div>
-        <div class="stat-box"><span class="stat-num">${Object.values(skillScores).filter(r => r.score >= 80).length}/${SKILLS.length}</span><span class="stat-label">áreas dominadas</span></div>
+        <div class="stat-box"><span class="stat-num">${overallAvg}%</span><span class="stat-label">overall mastery / dominio general</span></div>
+        <div class="stat-box"><span class="stat-num">${overall.reduce((s, r) => s + r.attempts, 0)}</span><span class="stat-label">questions practiced / preguntas practicadas</span></div>
+        <div class="stat-box"><span class="stat-num">${Object.values(skillScores).filter(r => r.score >= 80).length}/${SKILLS.length}</span><span class="stat-label">areas mastered / áreas dominadas</span></div>
       </div>
 
-      <h3 class="section-subtitle">Sellos de dominio</h3>
+      <h3 class="section-subtitle">Mastery stamps / Sellos de dominio</h3>
       <div class="stamp-grid">${stamps}</div>
 
-      <h3 class="section-subtitle">Actividad reciente</h3>
-      ${days.length ? `<div class="bar-chart">${bars}</div>` : `<p class="muted">Aún no hay actividad registrada — completa el diagnóstico para empezar.</p>`}
+      <h3 class="section-subtitle">Recent activity / Actividad reciente</h3>
+      ${days.length ? `<div class="bar-chart">${bars}</div>` : `<p class="muted">No activity recorded yet — complete the diagnostic to get started.</p>`}
     </section>
   `;
 }
@@ -353,17 +353,17 @@ function renderReference() {
       <h2 class="section-title">¿Por qué? — Ask why</h2>
       <p class="muted">${hasKey
         ? "Ask about any rule, phrasing, or sentence you're unsure of — this is a live conversation."
-        : "No AI key connected yet, so this searches a built-in grammar reference. Add a key anytime in Ajustes for live conversation."}</p>
+        : "No AI key connected yet, so this searches a built-in grammar reference. Add a key anytime in Settings / Ajustes for live conversation."}</p>
 
       <div class="card">
         <div class="ask-row">
           <input type="text" id="askInput" placeholder="e.g. why is it 'por' and not 'para' here?" autocomplete="off" />
-          <button class="btn-primary" id="askBtn">Preguntar</button>
+          <button class="btn-primary" id="askBtn">Ask / Preguntar</button>
         </div>
         <div id="chatLog" class="chat-log"></div>
       </div>
 
-      <h3 class="section-subtitle">Explorar por tema</h3>
+      <h3 class="section-subtitle">Explore by topic / Explorar por tema</h3>
       <div class="ref-topics">
         ${REFERENCE.map(r => `<button class="topic-chip" data-q="${encodeURIComponent(r.q)}">${skillLabel(r.skill)}</button>`).join("")}
       </div>
@@ -403,7 +403,7 @@ function renderReference() {
   function fallbackSearch(question) {
     const hits = searchReference(question);
     if (hits.length === 0) {
-      addBubble("No encontré nada exacto en la referencia — prueba con otras palabras clave, o revisa los temas abajo.", "assistant");
+      addBubble("Nothing exact found in the reference — try different keywords, or check the topics below.", "assistant");
     } else {
       hits.slice(0, 2).forEach(h => addBubble(h.body, "assistant"));
     }
@@ -423,30 +423,30 @@ function renderSettings() {
   const key = localStorage.getItem("anthropic_api_key") || "";
   app.innerHTML = `
     <section class="view">
-      <h2 class="section-title">Ajustes</h2>
+      <h2 class="section-title">Settings / Ajustes</h2>
 
       <div class="card">
-        <h3>Conexión de datos</h3>
+        <h3>Data connection / Conexión de datos</h3>
         <p>${DB.isConfigured
-          ? `<span class="status-ok">✓ Conectado a Supabase</span> — tu progreso se guarda en la nube.`
-          : `<span class="status-warn">⚠ No conectado</span> — edita config.js con tu URL y clave de Supabase. Mientras tanto, el progreso se guarda solo en este navegador y se perderá si limpias los datos.`}</p>
+          ? `<span class="status-ok">✓ Connected to Supabase / Conectado a Supabase</span> — your progress is saved to the cloud.`
+          : `<span class="status-warn">⚠ Not connected / No conectado</span> — edit config.js with your Supabase URL and key. In the meantime, progress is saved only in this browser and will be lost if you clear your data.`}</p>
       </div>
 
       <div class="card">
-        <h3>Chat con IA para "¿Por qué?"</h3>
-        <p class="muted">Opcional. Pega una clave de API de Anthropic para conversación en vivo en la pestaña "¿Por qué?". Sin clave, esa pestaña usa la referencia integrada — sigue siendo útil.</p>
+        <h3>AI chat for "Ask why / ¿Por qué?"</h3>
+        <p class="muted">Optional. Paste an Anthropic API key for live conversation in the "Ask why" tab. Without a key, that tab uses the built-in reference — still useful on its own.</p>
         <input type="password" id="apiKeyInput" placeholder="sk-ant-..." value="${key}" />
         <div class="settings-actions">
-          <button class="btn-primary" id="saveKey">Guardar clave</button>
-          <button class="btn-secondary" id="clearKey">Quitar clave</button>
+          <button class="btn-primary" id="saveKey">Save key / Guardar clave</button>
+          <button class="btn-secondary" id="clearKey">Remove key / Quitar clave</button>
         </div>
-        <p class="muted small">La clave se guarda solo en este navegador (localStorage), nunca se envía a ningún lado excepto directamente a la API de Anthropic.</p>
+        <p class="muted small">The key is stored only in this browser (localStorage) and is never sent anywhere except directly to Anthropic's API.</p>
       </div>
 
       <div class="card">
-        <h3>Reiniciar progreso local</h3>
-        <p class="muted">Solo borra los datos guardados en este navegador (no afecta Supabase si ya está conectado).</p>
-        <button class="btn-danger" id="resetLocal">Borrar datos locales</button>
+        <h3>Reset local progress / Reiniciar progreso local</h3>
+        <p class="muted">Only clears data stored in this browser (doesn't affect Supabase if it's already connected).</p>
+        <button class="btn-danger" id="resetLocal">Clear local data / Borrar datos locales</button>
       </div>
     </section>
   `;
@@ -460,7 +460,7 @@ function renderSettings() {
     renderSettings();
   });
   $("#resetLocal").addEventListener("click", () => {
-    if (confirm("¿Borrar todo el progreso guardado en este navegador?")) {
+    if (confirm("Clear all progress saved in this browser? / ¿Borrar todo el progreso guardado en este navegador?")) {
       localStorage.clear();
       location.reload();
     }
