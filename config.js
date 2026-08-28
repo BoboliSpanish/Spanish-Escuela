@@ -7,8 +7,8 @@
 // ============================================================
 
 const CONFIG = {
-  SUPABASE_URL: "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE",
-  SUPABASE_ANON_KEY: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE",
+   SUPABASE_URL: "https://mvifkoyuiqtotyfipzsd.supabase.co",
+   SUPABASE_ANON_KEY: "sb_publishable_dMpkNHzIlGJUlaQUWDdRxQ_KMnoWV1I",
 
   // Optional. If left blank, the "Ask why" tab uses the built-in
   // grammar reference instead of a live AI conversation.
