@@ -89,6 +89,43 @@ function wireMicButton(btn, lang, onTranscript) {
   });
 }
 
+// ---------- closeness scoring (free pronunciation-clarity proxy) ----------
+// Not true phoneme-level pronunciation scoring — it measures how closely
+// what the speech recognizer HEARD matches the target sentence. If she
+// mispronounces a word badly, the recognizer usually mishears it too, so
+// this still gives useful, honest feedback without any paid service.
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]);
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+function closenessScore(spoken, target) {
+  const a = norm(spoken), b = norm(target);
+  if (!a && !b) return 100;
+  const dist = levenshtein(a, b);
+  const maxLen = Math.max(a.length, b.length, 1);
+  return Math.max(0, Math.round((1 - dist / maxLen) * 100));
+}
+function pronunciationFeedback(score) {
+  if (score >= 90) return "🌟 Excellent — that came through very clearly.";
+  if (score >= 75) return "👍 Good — clear and understandable.";
+  if (score >= 55) return "🙂 Getting there — a few sounds weren't fully clear.";
+  return "🔁 Hard to make out — listen to the example again, then try speaking a bit slower.";
+}
+function closenessClass(score) {
+  if (score >= 75) return "ok";
+  if (score >= 55) return "mid";
+  return "bad";
+}
+
 async function refreshHeader() {
   const streak = await DB.getStreak();
   $("#streakNum").textContent = streak;
@@ -288,7 +325,14 @@ function renderLessonDetail(skillId, index) {
         <h2>${lesson.title}</h2>
         <p>${lesson.explain}</p>
         <h4>Examples / Ejemplos</h4>
-        <ul class="example-list">${lesson.examples.map((e, i) => `<li>${e} <button class="icon-btn speak-btn speak-example" data-ex="${i}" title="Listen / Escuchar">🔊</button></li>`).join("")}</ul>
+        <p class="muted small">Tap 🔊 to hear it, then 🎤 to try saying it back — you'll get a clarity score, not a grade.</p>
+        <ul class="example-list">${lesson.examples.map((e, i) => `
+          <li data-ex="${i}">
+            <span class="example-text">${e}</span>
+            <button class="icon-btn speak-btn speak-example" title="Listen / Escuchar">🔊</button>
+            <button class="icon-btn mic-btn repeat-mic" title="Repeat it back / Repítelo">🎤</button>
+            <div class="repeat-feedback"></div>
+          </li>`).join("")}</ul>
         <h4>Practice / Practica</h4>
         <div id="practiceArea">
           ${lesson.practice.map((p, i) => `
@@ -309,8 +353,17 @@ function renderLessonDetail(skillId, index) {
   `;
   $("#backToLessons").addEventListener("click", renderLessons);
 
-  $$(".speak-example").forEach(btn => {
-    btn.addEventListener("click", () => speak(lesson.examples[Number(btn.dataset.ex)]));
+  $$(".example-list li").forEach(li => {
+    const i = Number(li.dataset.ex);
+    const text = lesson.examples[i];
+    li.querySelector(".speak-example").addEventListener("click", () => speak(text));
+    const repeatBtn = li.querySelector(".repeat-mic");
+    const fb = li.querySelector(".repeat-feedback");
+    wireMicButton(repeatBtn, "es-ES", transcript => {
+      const score = closenessScore(transcript, text);
+      fb.className = "repeat-feedback " + closenessClass(score);
+      fb.innerHTML = `<span class="repeat-heard">Heard: "${transcript}"</span> — <strong>${score}%</strong> match<br>${pronunciationFeedback(score)}`;
+    });
   });
 
   $$(".practice-mic").forEach(btn => {
