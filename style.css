@@ -206,7 +206,7 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
 .lesson-card h3 { font-family: var(--font-display); font-size: 16px; margin: 4px 0 12px; }
 .done-tag { font-size: 12px; color: var(--sage); font-weight: 600; }
 .example-list { padding-left: 18px; font-size: 14px; }
-.example-list li { margin-bottom: 4px; font-style: italic; }
+.example-list li { margin-bottom: 4px; }
 .practice-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
 .practice-item label { flex-basis: 100%; font-size: 14px; }
 .practice-input { padding: 8px 10px; border: 1.5px solid var(--paper-line); border-radius: 4px; font-family: var(--font-body); flex: 1; min-width: 140px; }
@@ -279,7 +279,16 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
   50% { box-shadow: 0 0 0 6px rgba(178, 74, 42, 0); }
 }
 .speak-prompt { margin-left: 8px; }
-.example-list li { display: flex; align-items: center; gap: 8px; }
+.example-list { list-style: none; padding-left: 0; }
+.example-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--paper-line); }
+.example-list li:last-child { border-bottom: none; }
+.example-text { font-style: italic; flex: 1; min-width: 160px; }
+.repeat-feedback { flex-basis: 100%; font-size: 13px; padding: 8px 10px; border-radius: 4px; display: none; }
+.repeat-feedback:not(:empty) { display: block; }
+.repeat-feedback.ok { background: rgba(92, 127, 94, 0.12); color: var(--sage); }
+.repeat-feedback.mid { background: rgba(200, 150, 62, 0.14); color: var(--gold); }
+.repeat-feedback.bad { background: rgba(178, 74, 42, 0.1); color: var(--clay-dark); }
+.repeat-heard { font-style: italic; opacity: 0.85; }
 .practice-input-row { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
 .practice-input-row .practice-input { flex: 1; }
 
