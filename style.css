@@ -252,6 +252,37 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
 .bar { width: 70%; border-radius: 3px 3px 0 0; min-height: 3px; }
 .bar-label { font-size: 8px; color: var(--ink-faint); margin-top: 4px; writing-mode: vertical-rl; }
 
+/* ---------- voice buttons ---------- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--paper-line);
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.icon-btn:hover { border-color: var(--clay); }
+.icon-btn.listening {
+  border-color: var(--clay);
+  background: rgba(178, 74, 42, 0.15);
+  animation: pulse-mic 1s infinite;
+}
+@keyframes pulse-mic {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(178, 74, 42, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(178, 74, 42, 0); }
+}
+.speak-prompt { margin-left: 8px; }
+.example-list li { display: flex; align-items: center; gap: 8px; }
+.practice-input-row { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+.practice-input-row .practice-input { flex: 1; }
+
 /* ---------- reference / chat ---------- */
 .ask-row { display: flex; gap: 8px; }
 .ask-row input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--paper-line); border-radius: 5px; font-family: var(--font-body); font-size: 14px; }
