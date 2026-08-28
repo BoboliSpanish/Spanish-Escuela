@@ -18,6 +18,77 @@ function scoreColor(score) {
   return "var(--ink-faint)";
 }
 
+// ---------- voice: speaking (text-to-speech) ----------
+// Supported in essentially every modern browser (Chrome, Firefox, Safari, Edge).
+let cachedSpanishVoice = null;
+function pickSpanishVoice() {
+  if (!("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  return (
+    voices.find(v => v.lang === "es-ES") ||
+    voices.find(v => v.lang && v.lang.toLowerCase().startsWith("es")) ||
+    null
+  );
+}
+if ("speechSynthesis" in window) {
+  // voice list loads async in some browsers
+  window.speechSynthesis.onvoiceschanged = () => { cachedSpanishVoice = pickSpanishVoice(); };
+  cachedSpanishVoice = pickSpanishVoice();
+}
+function speak(text) {
+  if (!("speechSynthesis" in window) || !text) return;
+  window.speechSynthesis.cancel(); // stop anything currently playing
+  const utter = new SpeechSynthesisUtterance(text);
+  const voice = cachedSpanishVoice || pickSpanishVoice();
+  if (voice) { utter.voice = voice; utter.lang = voice.lang; }
+  else { utter.lang = "es-ES"; }
+  utter.rate = 0.92;
+  window.speechSynthesis.speak(utter);
+}
+function speakBtnHtml(extraClass = "") {
+  return `<button class="icon-btn speak-btn ${extraClass}" title="Listen / Escuchar" aria-label="Listen">🔊</button>`;
+}
+
+// ---------- voice: listening (speech-to-text) ----------
+// Only supported in Chrome, Edge, and (partially) Safari — NOT Firefox.
+function supportsSTT() {
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+function listenOnce(lang, onResult, onError) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { onError && onError("unsupported"); return null; }
+  const rec = new SR();
+  rec.lang = lang;
+  rec.interimResults = false;
+  rec.maxAlternatives = 1;
+  rec.onresult = e => onResult(e.results[0][0].transcript);
+  rec.onerror = e => onError && onError(e.error);
+  try { rec.start(); } catch (e) { onError && onError(e.message); }
+  return rec;
+}
+function micBtnHtml(extraClass = "") {
+  return `<button class="icon-btn mic-btn ${extraClass}" title="Speak your answer / Habla tu respuesta" aria-label="Speak">🎤</button>`;
+}
+function wireMicButton(btn, lang, onTranscript) {
+  btn.addEventListener("click", () => {
+    if (!supportsSTT()) {
+      alert("Voice input isn't supported in this browser. Try Chrome, Edge, or Safari — it won't work in Firefox.");
+      return;
+    }
+    btn.classList.add("listening");
+    btn.textContent = "🎙️";
+    listenOnce(lang,
+      transcript => { btn.classList.remove("listening"); btn.textContent = "🎤"; onTranscript(transcript); },
+      err => {
+        btn.classList.remove("listening");
+        btn.textContent = "🎤";
+        if (err !== "no-speech" && err !== "aborted") alert("Couldn't hear that — try again, or just type your answer.");
+      }
+    );
+  });
+}
+
 async function refreshHeader() {
   const streak = await DB.getStreak();
   $("#streakNum").textContent = streak;
@@ -86,7 +157,7 @@ function renderDiagQuestion() {
       <div class="progress-bar"><div class="progress-fill" style="width:${(diagIndex / diagQueue.length) * 100}%"></div></div>
       <p class="q-counter">Question ${diagIndex + 1} of ${diagQueue.length} <span class="es-note">/ Pregunta ${diagIndex + 1} de ${diagQueue.length}</span> · <span class="skill-pill">${skillLabel(q.skill)}</span></p>
       <div class="card question-card">
-        <h3>${q.prompt}</h3>
+        <h3>${q.prompt} ${speakBtnHtml("speak-prompt")}</h3>
         <div class="options" id="options">
           ${q.options.map((opt, i) => `<button class="option-btn" data-i="${i}">${opt}</button>`).join("")}
         </div>
@@ -95,6 +166,7 @@ function renderDiagQuestion() {
       </div>
     </section>
   `;
+  $(".speak-prompt").addEventListener("click", () => speak(q.prompt));
   let answered = false;
   $$(".option-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -216,13 +288,16 @@ function renderLessonDetail(skillId, index) {
         <h2>${lesson.title}</h2>
         <p>${lesson.explain}</p>
         <h4>Examples / Ejemplos</h4>
-        <ul class="example-list">${lesson.examples.map(e => `<li>${e}</li>`).join("")}</ul>
+        <ul class="example-list">${lesson.examples.map((e, i) => `<li>${e} <button class="icon-btn speak-btn speak-example" data-ex="${i}" title="Listen / Escuchar">🔊</button></li>`).join("")}</ul>
         <h4>Practice / Practica</h4>
         <div id="practiceArea">
           ${lesson.practice.map((p, i) => `
             <div class="practice-item" data-i="${i}">
               <label>${p.prompt}</label>
-              <input type="text" class="practice-input" autocomplete="off" spellcheck="false" />
+              <div class="practice-input-row">
+                <input type="text" class="practice-input" autocomplete="off" spellcheck="false" />
+                ${micBtnHtml("practice-mic")}
+              </div>
               <button class="btn-secondary check-btn">Check / Revisar</button>
               <span class="practice-feedback"></span>
             </div>
@@ -233,6 +308,16 @@ function renderLessonDetail(skillId, index) {
     </section>
   `;
   $("#backToLessons").addEventListener("click", renderLessons);
+
+  $$(".speak-example").forEach(btn => {
+    btn.addEventListener("click", () => speak(lesson.examples[Number(btn.dataset.ex)]));
+  });
+
+  $$(".practice-mic").forEach(btn => {
+    const item = btn.closest(".practice-item");
+    const input = item.querySelector(".practice-input");
+    wireMicButton(btn, "es-ES", transcript => { input.value = transcript; });
+  });
 
   $$(".check-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -358,6 +443,7 @@ function renderReference() {
       <div class="card">
         <div class="ask-row">
           <input type="text" id="askInput" placeholder="e.g. why is it 'por' and not 'para' here?" autocomplete="off" />
+          ${micBtnHtml("ask-mic")}
           <button class="btn-primary" id="askBtn">Ask / Preguntar</button>
         </div>
         <div id="chatLog" class="chat-log"></div>
@@ -411,6 +497,7 @@ function renderReference() {
 
   $("#askBtn").addEventListener("click", () => handleAsk($("#askInput").value));
   $("#askInput").addEventListener("keydown", e => { if (e.key === "Enter") handleAsk($("#askInput").value); });
+  wireMicButton($(".ask-mic"), navigator.language || "en-US", transcript => handleAsk(transcript));
   $$(".topic-chip").forEach(chip => {
     chip.addEventListener("click", () => handleAsk(decodeURIComponent(chip.dataset.q)));
   });
@@ -430,6 +517,16 @@ function renderSettings() {
         <p>${DB.isConfigured
           ? `<span class="status-ok">✓ Connected to Supabase / Conectado a Supabase</span> — your progress is saved to the cloud.`
           : `<span class="status-warn">⚠ Not connected / No conectado</span> — edit config.js with your Supabase URL and key. In the meantime, progress is saved only in this browser and will be lost if you clear your data.`}</p>
+      </div>
+
+      <div class="card">
+        <h3>Voice features / Funciones de voz</h3>
+        <p>${"speechSynthesis" in window
+          ? `<span class="status-ok">✓ Text-to-speech supported</span> — speaker buttons will read Spanish sentences aloud.`
+          : `<span class="status-warn">⚠ Text-to-speech not detected in this browser.</span>`}</p>
+        <p>${supportsSTT()
+          ? `<span class="status-ok">✓ Microphone input supported</span> — mic buttons will work for speaking answers.`
+          : `<span class="status-warn">⚠ Microphone input isn't supported in this browser</span> — this works in Chrome, Edge, or Safari, but not Firefox. Typing still works everywhere.`}</p>
       </div>
 
       <div class="card">
