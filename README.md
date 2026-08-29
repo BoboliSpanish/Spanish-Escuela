@@ -22,6 +22,8 @@ No build step — plain HTML/CSS/JS. Works on GitHub Pages as-is.
    ```
 6. Save the file.
 
+> If you already ran an earlier version of `supabase-schema.sql`, just re-run the current one — it only adds the new `vocab_progress` table and won't touch your existing data (every statement uses `if not exists`).
+
 > Note: the anon key is meant to be public-ish (it's how every Supabase
 > client-side app works) — access is controlled by the row-level-security
 > policies in the schema file, not by hiding the key. Since this app has no
@@ -68,15 +70,29 @@ into each device once.
 |---|---|
 | `index.html` | Page shell and navigation |
 | `style.css` | All styling |
-| `data.js` | Skills list, diagnostic question bank, lesson content, grammar reference — **edit this to add more content** |
+| `data.js` | Skills list, diagnostic question bank, lesson content, vocabulary flashcard categories, grammar reference — **edit this to add more content** |
 | `config.js` | Your Supabase credentials (and optional default API key) |
 | `db.js` | All Supabase read/write logic, with an in-memory fallback so the app still works before Supabase is connected |
-| `app.js` | UI logic — renders each tab, handles the quiz flow, lessons, progress charts, and chat |
+| `app.js` | UI logic — renders each tab, handles the diagnostic, lessons, vocabulary flashcards, progress charts, and chat |
 | `supabase-schema.sql` | Run once in Supabase's SQL editor to create the needed tables |
+
+## Diagnostic versions
+
+There are three check-ins, each covering more ground than the last:
+
+- **Beginning of Year** — foundational topics only (present tense, ser/estar, basic vocab, etc.), easiest difficulty. Skips the subjunctive and the preterite-vs-imperfect distinction.
+- **Middle of Year** — adds the preterite-vs-imperfect distinction and harder questions across every foundational topic. Still skips the subjunctive.
+- **End of Year** — everything, at full difficulty, including the subjunctive.
+
+Each version includes **every** matching question for every included skill area (not a random sample), so there's enough evidence per topic to actually reflect mastery rather than one lucky or unlucky guess. Answer order is shuffled every time, so the correct answer isn't always in the same position.
+
+## Vocabulary flashcards
+
+Separate from the grammar skills, the **Vocabulary** tab has topic-based flashcard sets (fruits, clothing, family, house & rooms, colors & numbers, daily routine). Each card can be marked "I know it" or "Don't know yet" — unknown cards keep coming back around in the same session until marked known, and known/unknown status is saved to Supabase so it persists across visits. Add more categories or words by editing `VOCAB_CATEGORIES` in `data.js`.
 
 ## Extending it later
 
-- **Add more diagnostic questions / lessons / reference topics**: everything
+- **Add more diagnostic questions / lessons / reference topics / vocabulary**: everything
   lives in plain arrays inside `data.js` — no code changes needed elsewhere.
 - **Add new skill categories**: add an entry to `SKILLS`, then add matching
   questions/lessons/reference entries with that same `id`.
@@ -84,3 +100,4 @@ into each device once.
   two people on the same Supabase project, you'd add a `user_id` column to
   each table and a simple name-select on load — ask me if you want this
   built out.
+- **How comprehensive is this?** Honestly, it's a solid Spanish 1–2 refresher — not a complete curriculum. It doesn't yet cover the full subjunctive system (imperfect subjunctive, conditional sentences), future/conditional tenses, formal commands, or a large vocabulary base. Expanding toward that is an ongoing content project, done the same way as everything else here: adding entries to `data.js`.
