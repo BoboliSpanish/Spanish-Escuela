@@ -163,21 +163,21 @@ let currentQOptions = []; // shuffled {opt, correct} for the active question
 const DIAGNOSTIC_VERSIONS = {
   beginning: {
     label: "Beginning of Year",
-    skills: SKILLS.map(s => s.id).filter(id => id !== "subjunctive" && id !== "pret_vs_imp"),
+    skills: SKILLS.map(s => s.id).filter(id => !["subjunctive", "pret_vs_imp", "future", "conditional"].includes(id)),
     maxDifficulty: 1,
-    instructions: "A short baseline check covering foundational topics you likely already know from Spanish 1–2: present tense, ser/estar, basic vocabulary, object pronouns, and similar. It intentionally skips more advanced topics like the subjunctive and the preterite-vs-imperfect distinction — those show up in the later checks. Use this to see where you're starting from.",
+    instructions: "A short baseline check covering foundational topics you likely already know from Spanish 1–2: present tense, ser/estar, basic commands, basic vocabulary, object pronouns, and similar. It intentionally skips more advanced topics like the subjunctive, future, conditional, and the preterite-vs-imperfect distinction — those show up in the later checks. Use this to see where you're starting from.",
   },
   middle: {
     label: "Middle of Year",
-    skills: SKILLS.map(s => s.id).filter(id => id !== "subjunctive"),
+    skills: SKILLS.map(s => s.id).filter(id => !["subjunctive", "conditional"].includes(id)),
     maxDifficulty: 2,
-    instructions: "A mid-point check that adds more nuance — including choosing between preterite and imperfect — and slightly harder questions across every foundational topic. Still skips the subjunctive, which is the most advanced topic covered here.",
+    instructions: "A mid-point check that adds more nuance — including choosing between preterite and imperfect, the future tense, and slightly harder questions across every foundational topic. Still skips the subjunctive and the conditional, which are the most advanced topics covered here.",
   },
   end: {
     label: "End of Year",
     skills: SKILLS.map(s => s.id),
     maxDifficulty: 3,
-    instructions: "The full, comprehensive check — every topic in this app, including the subjunctive, at full difficulty. This gives the most complete picture of where things stand across all skill areas.",
+    instructions: "The full, comprehensive check — every topic in this app, including the subjunctive and the conditional, at full difficulty. This gives the most complete picture of where things stand across all skill areas.",
   },
 };
 
@@ -348,11 +348,17 @@ async function renderLessons() {
 
   app.innerHTML = `
     <section class="view">
+      <div class="card intro-card">
+        <h2>Mixed Review / Repaso Mixto</h2>
+        <p>One quick session combining your weakest grammar skill's practice items with a handful of vocab words you haven't marked known yet.</p>
+        <button class="btn-primary" id="startMixed">Start mixed review / Empezar repaso mixto</button>
+      </div>
       <h2 class="section-title">Recommended lessons / Lecciones recomendadas</h2>
       <p class="muted">Ordered from your weakest area to your strongest. Complete the diagnostic first for a more accurate recommendation.</p>
       <div class="lesson-grid">${cards}</div>
     </section>
   `;
+  $("#startMixed").addEventListener("click", startMixedReview);
   $$(".open-lesson").forEach(btn => {
     btn.addEventListener("click", () => {
       const card = btn.closest(".lesson-card");
@@ -438,6 +444,112 @@ function renderLessonDetail(skillId, index) {
     await DB.recordAttempt(skillId, true, "lesson");
     renderLessons();
   });
+}
+
+// ============================================================
+// MIXED REVIEW — one session combining weakest grammar skill's
+// practice items with unlearned vocab, in random order
+// ============================================================
+let mixedQueue = [];
+let mixedIndex = 0;
+
+async function startMixedReview() {
+  const scores = await DB.getAllSkillScores();
+  const skillsWithLessons = SKILLS.filter(s => LESSONS[s.id]);
+  const ranked = [...skillsWithLessons].sort((a, b) => (scores[a.id]?.score ?? -1) - (scores[b.id]?.score ?? -1));
+  const weakest = ranked[0];
+  const grammarItems = (LESSONS[weakest.id][0].practice || [])
+    .slice(0, 5)
+    .map(p => ({ type: "grammar", skillId: weakest.id, prompt: p.prompt, answer: p.answer }));
+
+  const vocabProgress = await DB.getVocabProgress();
+  let vocabPool = [];
+  VOCAB_CATEGORIES.forEach(cat => cat.words.forEach((w, i) => {
+    const wordId = `${cat.id}:${i}`;
+    if (vocabProgress[wordId]?.status !== "known") vocabPool.push({ type: "vocab", es: w.es, en: w.en, wordId });
+  }));
+  vocabPool = vocabPool.sort(() => Math.random() - 0.5).slice(0, 5);
+
+  mixedQueue = [...grammarItems, ...vocabPool].sort(() => Math.random() - 0.5);
+  mixedIndex = 0;
+  renderMixedItem();
+}
+
+function renderMixedItem() {
+  if (mixedIndex >= mixedQueue.length) {
+    app.innerHTML = `
+      <section class="view">
+        <div class="card">
+          <h2>Mixed review complete! / ¡Repaso mixto completo!</h2>
+          <p>Nice work mixing grammar and vocabulary in one session.</p>
+          <button class="btn-primary" id="backToLessons">Back to lessons / Volver a lecciones</button>
+        </div>
+      </section>`;
+    $("#backToLessons").addEventListener("click", renderLessons);
+    return;
+  }
+  const item = mixedQueue[mixedIndex];
+  const counter = `<p class="q-counter">Mixed review — item ${mixedIndex + 1} of ${mixedQueue.length} <span class="skill-pill">${item.type === "grammar" ? skillLabel(item.skillId) : "Vocabulary"}</span></p>`;
+
+  if (item.type === "grammar") {
+    app.innerHTML = `
+      <section class="view">
+        ${counter}
+        <div class="card">
+          <label>${item.prompt}</label>
+          <div class="practice-input-row">
+            <input type="text" id="mixedInput" autocomplete="off" spellcheck="false" />
+            ${micBtnHtml("mixed-mic")}
+          </div>
+          <button class="btn-secondary" id="mixedCheck">Check / Revisar</button>
+          <span class="practice-feedback" id="mixedFeedback"></span>
+          <button class="btn-primary" id="mixedNext" style="display:none; margin-top:10px;">Next / Siguiente</button>
+        </div>
+      </section>`;
+    wireMicButton($(".mixed-mic"), "es-ES", t => { $("#mixedInput").value = t; });
+    $("#mixedCheck").addEventListener("click", () => {
+      const val = $("#mixedInput").value;
+      const ok = norm(val) === norm(item.answer) || (norm(item.answer).includes(norm(val)) && norm(val).length > 2);
+      const fb = $("#mixedFeedback");
+      fb.textContent = ok ? "✓ correct / bien" : `✗ expected / respuesta esperada: ${item.answer}`;
+      fb.className = "practice-feedback " + (ok ? "ok" : "bad");
+      $("#mixedNext").style.display = "inline-block";
+    });
+    $("#mixedNext").addEventListener("click", () => { mixedIndex += 1; renderMixedItem(); });
+  } else {
+    app.innerHTML = `
+      <section class="view">
+        ${counter}
+        <div class="card flashcard">
+          <div class="flashcard-face">
+            <span class="flashcard-word">${item.es}</span>
+            ${speakBtnHtml("speak-mixed")}
+          </div>
+          <div class="flashcard-back" id="mixedBack" style="display:none;"><span class="flashcard-en">${item.en}</span></div>
+          <button class="btn-secondary" id="mixedReveal">Show answer / Mostrar respuesta</button>
+          <div class="flashcard-actions" id="mixedActions" style="display:none;">
+            <button class="btn-danger" id="mixedDontKnow">Don't know yet / Aún no</button>
+            <button class="btn-primary" id="mixedKnow">I know it / Lo sé</button>
+          </div>
+        </div>
+      </section>`;
+    $(".speak-mixed").addEventListener("click", () => speak(item.es));
+    $("#mixedReveal").addEventListener("click", () => {
+      $("#mixedBack").style.display = "block";
+      $("#mixedActions").style.display = "flex";
+      $("#mixedReveal").style.display = "none";
+    });
+    $("#mixedDontKnow").addEventListener("click", async () => {
+      await DB.setVocabStatus(item.wordId, "learning");
+      mixedIndex += 1;
+      renderMixedItem();
+    });
+    $("#mixedKnow").addEventListener("click", async () => {
+      await DB.setVocabStatus(item.wordId, "known");
+      mixedIndex += 1;
+      renderMixedItem();
+    });
+  }
 }
 
 // ============================================================
@@ -752,9 +864,18 @@ function renderSettings() {
       </div>
 
       <div class="card">
-        <h3>Reset local progress / Reiniciar progreso local</h3>
-        <p class="muted">Only clears data stored in this browser (doesn't affect Supabase if it's already connected).</p>
-        <button class="btn-danger" id="resetLocal">Clear local data / Borrar datos locales</button>
+        <h3>Your data / Tus datos</h3>
+        <p class="muted">Download everything saved for this app — grammar scores, diagnostic history, completed lessons, and vocabulary progress — as a JSON file you can keep as a backup.</p>
+        <button class="btn-secondary" id="downloadData">Download my data / Descargar mis datos</button>
+      </div>
+
+      <div class="card">
+        <h3>Reset progress / Reiniciar progreso</h3>
+        <p class="muted">These clear real saved progress (in Supabase if connected, otherwise in memory for this session) — separated so you can reset one without touching the other.</p>
+        <div class="settings-actions">
+          <button class="btn-danger" id="resetGrammar">Clear grammar progress / Borrar progreso de gramática</button>
+          <button class="btn-danger" id="resetVocab">Clear vocabulary progress / Borrar progreso de vocabulario</button>
+        </div>
       </div>
     </section>
   `;
@@ -767,12 +888,44 @@ function renderSettings() {
     localStorage.removeItem("anthropic_api_key");
     renderSettings();
   });
-  $("#resetLocal").addEventListener("click", () => {
-    if (confirm("Clear all progress saved in this browser? / ¿Borrar todo el progreso guardado en este navegador?")) {
-      localStorage.clear();
-      location.reload();
+  $("#downloadData").addEventListener("click", downloadBackup);
+  $("#resetGrammar").addEventListener("click", async () => {
+    if (confirm("Clear all diagnostic and lesson progress? This can't be undone. / ¿Borrar todo el progreso de diagnóstico y lecciones?")) {
+      await DB.clearGrammarProgress();
+      renderSettings();
     }
   });
+  $("#resetVocab").addEventListener("click", async () => {
+    if (confirm("Clear all vocabulary flashcard progress? This can't be undone. / ¿Borrar todo el progreso de vocabulario?")) {
+      await DB.clearVocabProgress();
+      renderSettings();
+    }
+  });
+}
+
+async function downloadBackup() {
+  const [scores, attempts, lessons, vocab] = await Promise.all([
+    DB.getAllSkillScores(),
+    DB.getRecentAttempts(3650),
+    DB.getCompletedLessons(),
+    DB.getVocabProgress(),
+  ]);
+  const payload = {
+    exported_at: new Date().toISOString(),
+    skill_scores: scores,
+    attempts_log: attempts,
+    lessons_completed: lessons,
+    vocab_progress: vocab,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `cuaderno-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ---------- boot ----------
