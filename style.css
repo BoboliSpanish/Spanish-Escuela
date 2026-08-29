@@ -200,6 +200,8 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
 .vocab-cat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .vocab-cat-top h3 { font-family: var(--font-display); font-size: 16px; margin: 0; }
 .vocab-cat-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.add-word-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.add-word-row input { flex: 1; min-width: 140px; padding: 10px 12px; border: 1.5px solid var(--paper-line); border-radius: 5px; font-family: var(--font-body); font-size: 14px; }
 .flashcard { text-align: center; max-width: 420px; margin-left: auto; margin-right: auto; }
 .flashcard-face { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; }
 .flashcard-word { font-family: var(--font-display); font-size: 28px; font-weight: 600; }
@@ -207,6 +209,14 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
 .flashcard-en { font-size: 20px; color: var(--sage); font-weight: 600; }
 .flashcard-actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
 #revealBtn { margin-top: 4px; }
+
+/* ---------- reading comprehension ---------- */
+.reading-text { font-size: 16px; line-height: 1.7; }
+.reading-question { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px dashed var(--paper-line); }
+.reading-question:last-child { border-bottom: none; }
+.reading-option { display: block; padding: 6px 0; font-size: 14px; cursor: pointer; }
+.reading-option.correct-option { color: var(--sage); font-weight: 600; }
+.reading-explain { margin-top: 8px; }
 
 /* ---------- lessons ---------- */
 .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin-top: 14px; }
