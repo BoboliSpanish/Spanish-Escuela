@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cuaderno — Spanish Progress Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark">✈︎</span>
+      <div class="brand-text">
+        <h1>Cuaderno</h1>
+        <p class="tagline">Your Spanish journal / Tu diario de español</p>
+      </div>
+    </div>
+    <div class="streak-chip" id="streakChip">
+      <span class="streak-num" id="streakNum">0</span>
+      <span class="streak-label">day streak / racha</span>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab-btn active" data-view="diagnostic">Diagnostic / Diagnóstico</button>
+    <button class="tab-btn" data-view="lessons">Lessons / Lecciones</button>
+    <button class="tab-btn" data-view="vocab">Vocabulary / Vocabulario</button>
+    <button class="tab-btn" data-view="progress">Progress / Progreso</button>
+    <button class="tab-btn" data-view="reference">Ask why / ¿Por qué?</button>
+    <button class="tab-btn" data-view="settings">Settings / Ajustes</button>
+  </nav>
+</header>
+
+<main id="app">
+  <!-- Views are rendered here by app.js -->
+  <div class="loading-note">Loading… / Cargando…</div>
+</main>
+
+<footer class="app-footer">
+  <p>Handmade / Hecho a mano — no autograded shortcuts, just honest practice.</p>
+</footer>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script type="module" src="db.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
