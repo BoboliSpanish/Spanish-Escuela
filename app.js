@@ -146,6 +146,7 @@ async function render() {
   if (currentView === "diagnostic") renderDiagnostic();
   else if (currentView === "lessons") renderLessons();
   else if (currentView === "vocab") renderVocabCategories();
+  else if (currentView === "readings") renderReadingsList();
   else if (currentView === "progress") renderProgress();
   else if (currentView === "reference") renderReference();
   else if (currentView === "settings") renderSettings();
@@ -163,21 +164,21 @@ let currentQOptions = []; // shuffled {opt, correct} for the active question
 const DIAGNOSTIC_VERSIONS = {
   beginning: {
     label: "Beginning of Year",
-    skills: SKILLS.map(s => s.id).filter(id => !["subjunctive", "pret_vs_imp", "future", "conditional"].includes(id)),
+    skills: SKILLS.map(s => s.id).filter(id => !["subjunctive", "pret_vs_imp", "future", "conditional", "perfect_tenses", "imp_subjunctive_si"].includes(id)),
     maxDifficulty: 1,
-    instructions: "A short baseline check covering foundational topics you likely already know from Spanish 1–2: present tense, ser/estar, basic commands, basic vocabulary, object pronouns, and similar. It intentionally skips more advanced topics like the subjunctive, future, conditional, and the preterite-vs-imperfect distinction — those show up in the later checks. Use this to see where you're starting from.",
+    instructions: "A short baseline check covering foundational topics you likely already know from Spanish 1–2: present tense, ser/estar, basic commands, basic vocabulary, object pronouns, and similar. It intentionally skips more advanced topics like the subjunctive, future, conditional, perfect tenses, and the preterite-vs-imperfect distinction — those show up in the later checks. Use this to see where you're starting from.",
   },
   middle: {
     label: "Middle of Year",
-    skills: SKILLS.map(s => s.id).filter(id => !["subjunctive", "conditional"].includes(id)),
+    skills: SKILLS.map(s => s.id).filter(id => !["subjunctive", "conditional", "perfect_tenses", "imp_subjunctive_si"].includes(id)),
     maxDifficulty: 2,
-    instructions: "A mid-point check that adds more nuance — including choosing between preterite and imperfect, the future tense, and slightly harder questions across every foundational topic. Still skips the subjunctive and the conditional, which are the most advanced topics covered here.",
+    instructions: "A mid-point check that adds more nuance — including choosing between preterite and imperfect, the future tense, and slightly harder questions across every foundational topic. Still skips the subjunctive, conditional, perfect tenses, and imperfect subjunctive — the most advanced topics covered here.",
   },
   end: {
     label: "End of Year",
     skills: SKILLS.map(s => s.id),
     maxDifficulty: 3,
-    instructions: "The full, comprehensive check — every topic in this app, including the subjunctive and the conditional, at full difficulty. This gives the most complete picture of where things stand across all skill areas.",
+    instructions: "The full, comprehensive check — every topic in this app, including the subjunctive, conditional, perfect tenses, and imperfect subjunctive with si clauses, at full difficulty. This gives the most complete picture of where things stand across all skill areas.",
   },
 };
 
@@ -463,10 +464,11 @@ async function startMixedReview() {
     .map(p => ({ type: "grammar", skillId: weakest.id, prompt: p.prompt, answer: p.answer }));
 
   const vocabProgress = await DB.getVocabProgress();
+  const allCats = await buildVocabCategories();
   let vocabPool = [];
-  VOCAB_CATEGORIES.forEach(cat => cat.words.forEach((w, i) => {
-    const wordId = `${cat.id}:${i}`;
-    if (vocabProgress[wordId]?.status !== "known") vocabPool.push({ type: "vocab", es: w.es, en: w.en, wordId });
+  allCats.forEach(cat => cat.words.forEach((w, i) => {
+    const wordId = cat.id === "custom" ? `custom:${w.customId}` : `${cat.id}:${i}`;
+    if (srsIsDue(vocabProgress[wordId])) vocabPool.push({ type: "vocab", es: w.es, en: w.en, wordId });
   }));
   vocabPool = vocabPool.sort(() => Math.random() - 0.5).slice(0, 5);
 
@@ -540,12 +542,14 @@ function renderMixedItem() {
       $("#mixedReveal").style.display = "none";
     });
     $("#mixedDontKnow").addEventListener("click", async () => {
-      await DB.setVocabStatus(item.wordId, "learning");
+      await DB.setVocabReview(item.wordId, 0, new Date().toISOString());
       mixedIndex += 1;
       renderMixedItem();
     });
     $("#mixedKnow").addEventListener("click", async () => {
-      await DB.setVocabStatus(item.wordId, "known");
+      const progress = await DB.getVocabProgress();
+      const newLevel = Math.min((progress[item.wordId]?.level ?? 0) + 1, 5);
+      await DB.setVocabReview(item.wordId, newLevel, srsNextDueISO(newLevel));
       mixedIndex += 1;
       renderMixedItem();
     });
@@ -553,25 +557,58 @@ function renderMixedItem() {
 }
 
 // ============================================================
-// VOCABULARY — flashcards, independent from the grammar skills
+// VOCABULARY — flashcards, independent from the grammar skills.
+// Uses simple spaced repetition: each card has a level (0-5) and
+// a next_due date. Marking a card known pushes its next review
+// further out; marking it unknown resets it to due-immediately.
 // ============================================================
-let vocabSession = []; // queue of { catId, idx, es, en } — front of array = current card
+const SRS_INTERVAL_DAYS = [1, 3, 7, 14, 30]; // indexed by level 1-5
+function srsNextDueISO(level) {
+  const days = SRS_INTERVAL_DAYS[Math.min(Math.max(level, 1), SRS_INTERVAL_DAYS.length) - 1];
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString();
+}
+function srsIsDue(entry) {
+  if (!entry) return true; // never reviewed = due now
+  return new Date(entry.next_due) <= new Date();
+}
+
+let vocabSession = []; // queue of { es, en, wordId } — front of array = current card
 let vocabKnownThisSession = 0;
 let vocabStartCount = 0;
+let vocabCategoriesCache = []; // built fresh each time renderVocabCategories runs
+
+async function buildVocabCategories() {
+  const custom = await DB.getCustomVocab();
+  const customCat = {
+    id: "custom",
+    label: "My Words / Mis Palabras",
+    words: custom.map(w => ({ es: w.es, en: w.en, customId: w.id })),
+  };
+  return [customCat, ...VOCAB_CATEGORIES];
+}
 
 async function renderVocabCategories() {
   const progress = await DB.getVocabProgress();
-  const cards = VOCAB_CATEGORIES.map(cat => {
-    const known = cat.words.filter((_, i) => progress[`${cat.id}:${i}`]?.status === "known").length;
+  vocabCategoriesCache = await buildVocabCategories();
+
+  const cards = vocabCategoriesCache.map(cat => {
+    const wordIds = cat.words.map((w, i) => (cat.id === "custom" ? `custom:${w.customId}` : `${cat.id}:${i}`));
+    const mastered = wordIds.filter(id => (progress[id]?.level ?? 0) >= 5).length;
+    const dueCount = wordIds.filter(id => srsIsDue(progress[id])).length;
+    const total = cat.words.length;
+    if (total === 0) return "";
     return `
       <div class="card vocab-cat-card">
         <div class="vocab-cat-top">
           <h3>${cat.label}</h3>
-          <span class="mini-score" style="color:${scoreColor(Math.round((known / cat.words.length) * 100))}">${known}/${cat.words.length} known</span>
+          <span class="mini-score" style="color:${scoreColor(Math.round((mastered / total) * 100))}">${mastered}/${total} mastered</span>
         </div>
+        <p class="muted small">${dueCount} due for review</p>
         <div class="vocab-cat-actions">
-          <button class="btn-primary practice-cat" data-cat="${cat.id}" data-mode="unknown">Practice / Practicar</button>
-          ${known > 0 ? `<button class="btn-secondary practice-cat" data-cat="${cat.id}" data-mode="all">Review all / Repasar todo</button>` : ""}
+          <button class="btn-primary practice-cat" data-cat="${cat.id}" data-mode="due" ${dueCount === 0 ? "disabled" : ""}>Practice due / Practicar pendientes</button>
+          <button class="btn-secondary practice-cat" data-cat="${cat.id}" data-mode="all">Review all / Repasar todo</button>
         </div>
       </div>`;
   }).join("");
@@ -579,10 +616,28 @@ async function renderVocabCategories() {
   app.innerHTML = `
     <section class="view">
       <h2 class="section-title">Vocabulary / Vocabulario</h2>
-      <p class="muted">Flashcards by topic. Mark each card "I know it" or "Don't know yet" — cards you don't know come back around until you do.</p>
+      <p class="muted">Flashcards by topic, with spaced repetition — cards you know move further out on the schedule, cards you don't come back sooner.</p>
+
+      <div class="card">
+        <h3>Add your own word / Añade tu propia palabra</h3>
+        <div class="add-word-row">
+          <input type="text" id="newWordEs" placeholder="Spanish / Español" />
+          <input type="text" id="newWordEn" placeholder="English / Inglés" />
+          <button class="btn-primary" id="addWordBtn">Add / Añadir</button>
+        </div>
+      </div>
+
       <div class="vocab-cat-grid">${cards}</div>
     </section>
   `;
+
+  $("#addWordBtn").addEventListener("click", async () => {
+    const es = $("#newWordEs").value.trim();
+    const en = $("#newWordEn").value.trim();
+    if (!es || !en) { alert("Add both the Spanish and English word before saving."); return; }
+    await DB.addCustomWord(es, en);
+    renderVocabCategories();
+  });
 
   $$(".practice-cat").forEach(btn => {
     btn.addEventListener("click", () => startVocabSession(btn.dataset.cat, btn.dataset.mode));
@@ -590,14 +645,18 @@ async function renderVocabCategories() {
 }
 
 async function startVocabSession(catId, mode) {
-  const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
+  const cat = vocabCategoriesCache.find(c => c.id === catId) || (await buildVocabCategories()).find(c => c.id === catId);
   const progress = await DB.getVocabProgress();
-  let words = cat.words.map((w, i) => ({ catId, idx: i, es: w.es, en: w.en, wordId: `${catId}:${i}` }));
-  if (mode === "unknown") {
-    words = words.filter(w => progress[w.wordId]?.status !== "known");
+  let words = cat.words.map((w, i) => ({
+    es: w.es,
+    en: w.en,
+    wordId: cat.id === "custom" ? `custom:${w.customId}` : `${cat.id}:${i}`,
+  }));
+  if (mode === "due") {
+    words = words.filter(w => srsIsDue(progress[w.wordId]));
   }
   if (words.length === 0) {
-    alert("Every card in this category is already marked known! Try 'Review all' to practice them anyway.");
+    alert("Nothing due in this category right now! Try 'Review all' to practice anyway.");
     return;
   }
   vocabSession = [...words].sort(() => Math.random() - 0.5);
@@ -650,16 +709,96 @@ function renderVocabCard() {
     $("#revealBtn").style.display = "none";
   });
   $("#dontKnowBtn").addEventListener("click", async () => {
-    await DB.setVocabStatus(card.wordId, "learning");
+    await DB.setVocabReview(card.wordId, 0, new Date().toISOString());
     vocabSession.shift();
     vocabSession.push(card); // comes back around later in this session
     renderVocabCard();
   });
   $("#knowBtn").addEventListener("click", async () => {
-    await DB.setVocabStatus(card.wordId, "known");
+    const progress = await DB.getVocabProgress();
+    const newLevel = Math.min((progress[card.wordId]?.level ?? 0) + 1, 5);
+    await DB.setVocabReview(card.wordId, newLevel, srsNextDueISO(newLevel));
     vocabKnownThisSession += 1;
     vocabSession.shift();
     renderVocabCard();
+  });
+}
+
+// ============================================================
+// READING COMPREHENSION
+// ============================================================
+function renderReadingsList() {
+  const cards = READINGS.map(r => `
+    <div class="card reading-card">
+      <div class="lesson-card-top">
+        <span class="skill-pill">${r.level}</span>
+      </div>
+      <h3>${r.title}</h3>
+      <button class="btn-secondary open-reading" data-id="${r.id}">Read / Leer</button>
+    </div>`).join("");
+
+  app.innerHTML = `
+    <section class="view">
+      <h2 class="section-title">Reading / Lectura</h2>
+      <p class="muted">Short passages with comprehension questions — practice following extended Spanish instead of isolated sentences.</p>
+      <div class="lesson-grid">${cards}</div>
+    </section>
+  `;
+  $$(".open-reading").forEach(btn => {
+    btn.addEventListener("click", () => renderReadingDetail(btn.dataset.id));
+  });
+}
+
+function renderReadingDetail(readingId) {
+  const reading = READINGS.find(r => r.id === readingId);
+  app.innerHTML = `
+    <section class="view">
+      <button class="btn-link" id="backToReadings">← Back to readings / Volver a lecturas</button>
+      <div class="card">
+        <span class="skill-pill">${reading.level}</span>
+        <h2>${reading.title}</h2>
+        <p class="reading-text">${reading.text} ${speakBtnHtml("speak-reading")}</p>
+        <h4>Comprehension questions / Preguntas de comprensión</h4>
+        <form id="readingForm">
+          ${reading.questions.map((q, qi) => `
+            <div class="reading-question" data-qi="${qi}">
+              <p>${qi + 1}. ${q.prompt}</p>
+              <div class="options">
+                ${q.options.map((opt, oi) => `
+                  <label class="reading-option">
+                    <input type="radio" name="q${qi}" value="${oi}" /> ${opt}
+                  </label>`).join("")}
+              </div>
+              <div class="explain-box reading-explain" style="display:none;"></div>
+            </div>
+          `).join("")}
+        </form>
+        <button class="btn-primary" id="checkReading">Check answers / Revisar respuestas</button>
+        <p class="big-stat" id="readingScore" style="display:none;"></p>
+      </div>
+    </section>
+  `;
+  $("#backToReadings").addEventListener("click", renderReadingsList);
+  $(".speak-reading").addEventListener("click", () => speak(reading.text));
+  $("#checkReading").addEventListener("click", () => {
+    let correct = 0;
+    reading.questions.forEach((q, qi) => {
+      const chosen = document.querySelector(`input[name="q${qi}"]:checked`);
+      const block = document.querySelector(`.reading-question[data-qi="${qi}"]`);
+      const explainBox = block.querySelector(".reading-explain");
+      const isCorrect = chosen && Number(chosen.value) === q.answer;
+      if (isCorrect) correct += 1;
+      explainBox.style.display = "block";
+      explainBox.innerHTML = `<strong>${isCorrect ? "Correct! / ¡Correcto!" : "Not quite / No exactamente."}</strong> ${q.explain}`;
+      block.querySelectorAll(".reading-option").forEach((label, oi) => {
+        if (oi === q.answer) label.classList.add("correct-option");
+      });
+    });
+    const scoreEl = $("#readingScore");
+    scoreEl.style.display = "block";
+    scoreEl.textContent = `${correct} / ${reading.questions.length} correct`;
+    $("#checkReading").disabled = true;
+    document.querySelectorAll('#readingForm input[type="radio"]').forEach(el => (el.disabled = true));
   });
 }
 
