@@ -22,6 +22,8 @@ const SKILLS = [
   { id: "commands",      label: "Commands (imperative)",      group: "Verbs" },
   { id: "future",        label: "Future tense",                group: "Verbs" },
   { id: "conditional",   label: "Conditional tense",           group: "Verbs" },
+  { id: "perfect_tenses",label: "Present & past perfect",       group: "Verbs" },
+  { id: "imp_subjunctive_si", label: "Imperfect subjunctive & si clauses", group: "Verbs" },
 ];
 
 // ------------------------------------------------------------
@@ -219,6 +221,34 @@ const QUESTIONS = [
     explain:"'Decir' has an irregular stem (dir-) shared by future and conditional, + íamos for nosotros." },
   { skill:"conditional", difficulty:3, prompt:"Yo ___ (querer) más información antes de decidir.", options:["querría","quiero","quería","querré"], answer:0,
     explain:"Conditional of 'querer' softens the request; in casual speech many people say 'quisiera' instead, which is also polite but is actually an imperfect subjunctive form doing the same job." },
+
+  // perfect_tenses
+  { skill:"perfect_tenses", difficulty:1, prompt:"Yo ___ (comer) ya.", options:["he comido","como","comí","había comido"], answer:0,
+    explain:"Present perfect: present-tense 'haber' (he) + past participle (comido)." },
+  { skill:"perfect_tenses", difficulty:1, prompt:"Ella ___ (llegar) tarde.", options:["ha llegado","llega","llegó","había llegado"], answer:0,
+    explain:"Present perfect, ella: ha + llegado." },
+  { skill:"perfect_tenses", difficulty:2, prompt:"Nosotros ___ (ver) esa película.", options:["hemos visto","hemos veído","vimos","habíamos visto"], answer:0,
+    explain:"'Ver' has an irregular past participle: visto (not 'veído')." },
+  { skill:"perfect_tenses", difficulty:2, prompt:"Ellos ___ (escribir) la carta.", options:["han escrito","han escribido","escribieron","habían escrito"], answer:0,
+    explain:"'Escribir' has an irregular past participle: escrito (not 'escribido')." },
+  { skill:"perfect_tenses", difficulty:3, prompt:"Cuando llegué, ella ya ___ (salir).", options:["había salido","ha salido","salió","salía"], answer:0,
+    explain:"Past perfect (había + participle) marks an action completed before another past event." },
+  { skill:"perfect_tenses", difficulty:3, prompt:"Nosotros nunca ___ (estar) en Japón antes de ese viaje.", options:["habíamos estado","hemos estado","estuvimos","estábamos"], answer:0,
+    explain:"Past perfect, nosotros: habíamos + estado, for something true before a past reference point." },
+
+  // imp_subjunctive_si
+  { skill:"imp_subjunctive_si", difficulty:1, prompt:"Si yo ___ (tener) tiempo, iría al gimnasio.", options:["tuviera","tengo","tenía","tendré"], answer:0,
+    explain:"Contrary-to-fact 'si' clause: imperfect subjunctive (tuviera) + conditional (iría)." },
+  { skill:"imp_subjunctive_si", difficulty:1, prompt:"Ella quería que yo ___ (venir) a la fiesta.", options:["viniera","vengo","vine","vendré"], answer:0,
+    explain:"A past-tense main clause expressing a wish triggers the imperfect subjunctive in the dependent clause." },
+  { skill:"imp_subjunctive_si", difficulty:2, prompt:"Si nosotros ___ (saber) la verdad, se lo diríamos.", options:["supiéramos","sabemos","sabíamos","sabremos"], answer:0,
+    explain:"'Saber' imperfect subjunctive: from the preterite stem 'supieron' → supiera/supiéramos." },
+  { skill:"imp_subjunctive_si", difficulty:2, prompt:"Si tú ___ (ser) más paciente, todo sería más fácil.", options:["fueras","eres","eras","serás"], answer:0,
+    explain:"'Ser' imperfect subjunctive: from 'fueron' → fuera/fueras." },
+  { skill:"imp_subjunctive_si", difficulty:3, prompt:"Si yo ___ (poder) volver al pasado, cambiaría muchas cosas.", options:["pudiera","puedo","podía","podré"], answer:0,
+    explain:"'Poder' imperfect subjunctive: from 'pudieron' → pudiera." },
+  { skill:"imp_subjunctive_si", difficulty:3, prompt:"Actuaba como si ___ (saber) todas las respuestas.", options:["supiera","sabe","sabía","sabrá"], answer:0,
+    explain:"'Como si' (as if) always triggers the imperfect subjunctive, since it frames a hypothetical, untrue comparison." },
 ];
 
 // ------------------------------------------------------------
@@ -517,6 +547,40 @@ const LESSONS = {
       { prompt: "Tú ___ (saber) qué hacer en esa situación.", answer: "sabrías" },
     ],
   }],
+  perfect_tenses: [{
+    title: "Present & past perfect — 'have done' and 'had done'",
+    explain: "Present perfect (he hablado = 'I have spoken') pairs the present tense of haber (he, has, ha, hemos, han) with a past participle. Past perfect (había hablado = 'I had spoken') does the same with the imperfect of haber (había, habías, había, habíamos, habían) — used for something that happened before another past event. Regular participles: -ar→-ado (hablado), -er/-ir→-ido (comido, vivido). A short list of common verbs have irregular participles worth memorizing: escrito, dicho, hecho, visto, puesto, vuelto, muerto, roto, abierto, cubierto.",
+    examples: ["Ya he terminado la tarea.", "Nunca he estado en Perú.", "Cuando llegamos, la película ya había empezado."],
+    practice: [
+      { prompt: "Yo ___ (comer) ya.", answer: "he comido" },
+      { prompt: "Ella ___ (llegar) tarde.", answer: "ha llegado" },
+      { prompt: "Nosotros ___ (ver) esa película.", answer: "hemos visto" },
+      { prompt: "Ellos ___ (escribir) la carta.", answer: "han escrito" },
+      { prompt: "Cuando llegué, ella ya ___ (salir).", answer: "había salido" },
+      { prompt: "Nosotros nunca ___ (estar) en Japón antes de ese viaje.", answer: "habíamos estado" },
+      { prompt: "¿___ (tú / hacer) la tarea?", answer: "Has hecho" },
+      { prompt: "Yo nunca ___ (romper) nada en esta casa.", answer: "he roto" },
+      { prompt: "Antes de mudarnos, nosotros ya ___ (comprar) los muebles.", answer: "habíamos comprado" },
+      { prompt: "Ella ___ (decir) la verdad siempre.", answer: "ha dicho" },
+    ],
+  }],
+  imp_subjunctive_si: [{
+    title: "Imperfect subjunctive & si clauses — hypotheticals",
+    explain: "The imperfect subjunctive is built from the ellos/ellas preterite form: drop -ron and add -ra endings (tuvieron→tuviera, fueron→fuera, supieron→supiera). It shows up in two key places: (1) when a past-tense main clause triggers the subjunctive ('Quería que vinieras' — I wanted you to come), and (2) in contrary-to-fact 'if' sentences, paired with the conditional: 'Si tuviera dinero, viajaría' (If I had money, I would travel — but I don't, so I won't). The pattern 'como si' (as if) also always triggers it.",
+    examples: ["Si tuviera más tiempo, aprendería a cocinar.", "Ella hablaba como si lo supiera todo.", "Quería que llegaras temprano."],
+    practice: [
+      { prompt: "Si yo ___ (tener) tiempo, iría al gimnasio.", answer: "tuviera" },
+      { prompt: "Ella quería que yo ___ (venir) a la fiesta.", answer: "viniera" },
+      { prompt: "Si nosotros ___ (saber) la verdad, se lo diríamos.", answer: "supiéramos" },
+      { prompt: "Si tú ___ (ser) más paciente, todo sería más fácil.", answer: "fueras" },
+      { prompt: "Si yo ___ (poder) volver al pasado, cambiaría muchas cosas.", answer: "pudiera" },
+      { prompt: "Actuaba como si ___ (saber) todas las respuestas.", answer: "supiera" },
+      { prompt: "Si ellos ___ (estudiar) más, sacarían mejores notas.", answer: "estudiaran" },
+      { prompt: "Me habló como si me ___ (conocer) de toda la vida.", answer: "conociera" },
+      { prompt: "Si ella ___ (ir) a la fiesta, se divertiría.", answer: "fuera" },
+      { prompt: "Esperaba que tú me ___ (decir) la verdad.", answer: "dijeras" },
+    ],
+  }],
 };
 
 // ------------------------------------------------------------
@@ -613,6 +677,62 @@ const REFERENCE = [
     a:"The future tense actually formed historically from the infinitive plus a conjugated form of 'haber' (hablar-he → hablaré), which fused into one word over centuries. A handful of very common verbs had their infinitive stem worn down or contracted in everyday speech before the endings attached — tener→tendr-, hacer→har-, decir→dir- — and those contracted forms are what stuck. The endings themselves never change; only the stem for these dozen verbs is irregular." },
   { skill:"conditional", q:"Why does the conditional use the same irregular stems as the future?",
     a:"Both tenses attach their endings to the same base — for regular verbs that's the full infinitive, and for the same dozen irregular verbs it's the same contracted stem (tendr-, har-, podr-, etc.). Future and conditional differ only in which endings they add onto that shared stem: future uses -é/-ás/-á/-emos/-án, conditional uses -ía/-ías/-ía/-íamos/-ían. Learn the irregular stems once and they cover both tenses." },
+  { skill:"perfect_tenses", q:"Why does Spanish use 'haber' for the perfect tenses instead of 'tener'?",
+    a:"Both verbs can mean 'to have', but Spanish split the job: 'tener' handles possession ('tengo un libro' — I have/own a book), while 'haber' became a pure grammatical helper verb used only to build compound tenses like the perfect. English actually preserves a similar split in older or formal phrasing ('I have come' uses 'have' as a helper, not as possession) — Spanish just never lets 'tener' do that job at all." },
+  { skill:"imp_subjunctive_si", q:"Why does 'if I had money' use a totally different verb form than the present tense?",
+    a:"Spanish uses the imperfect subjunctive specifically to mark a condition as hypothetical or contrary-to-fact — you're describing a world that isn't the current one. 'Si tengo dinero' (present indicative) actually means a real, open possibility ('if I have money, and I might'), while 'Si tuviera dinero' (imperfect subjunctive) signals 'but I don't.' The verb mood itself carries that meaning, which is why it can't just borrow the regular past tense." },
+];
+
+// ------------------------------------------------------------
+// READINGS — short passages with comprehension questions, for
+// practicing extended text rather than isolated sentences.
+// level: "Beginner" | "Intermediate" | "Advanced"
+// ------------------------------------------------------------
+const READINGS = [
+  {
+    id: "un_dia_tipico",
+    title: "Un día típico",
+    level: "Beginner",
+    text: "Me llamo Ana. Todos los días me despierto a las siete de la mañana. Después de ducharme, desayuno café con tostadas. Trabajo en una oficina cerca de mi casa, así que camino todos los días. Por la tarde, ceno con mi familia y vemos la televisión juntos. Me acuesto temprano, alrededor de las diez.",
+    questions: [
+      { prompt: "¿A qué hora se despierta Ana?", options: ["A las siete", "A las ocho", "A las nueve", "A las diez"], answer: 0,
+        explain: "El texto dice: 'me despierto a las siete de la mañana'." },
+      { prompt: "¿Cómo llega Ana al trabajo?", options: ["Caminando", "En coche", "En autobús", "En bicicleta"], answer: 0,
+        explain: "El texto dice: 'camino todos los días', ya que la oficina está cerca de su casa." },
+      { prompt: "¿Con quién cena Ana?", options: ["Con su familia", "Con sus amigos", "Sola", "Con sus compañeros de trabajo"], answer: 0,
+        explain: "El texto dice: 'ceno con mi familia'." },
+    ],
+  },
+  {
+    id: "vacaciones_costa",
+    title: "Vacaciones en la costa",
+    level: "Intermediate",
+    text: "El verano pasado, mi familia y yo viajamos a la costa de España. Llegamos al hotel por la tarde y, aunque estábamos muy cansados, decidimos caminar por la playa antes de cenar. El agua estaba fría, pero el cielo tenía colores hermosos porque el sol se estaba poniendo. Esa noche, cenamos mariscos frescos en un restaurante pequeño cerca del mar. Fue una de las mejores noches de mis vacaciones.",
+    questions: [
+      { prompt: "¿Adónde viajó la familia?", options: ["A la costa de España", "A un pueblo de montaña", "A otra ciudad", "A un país diferente"], answer: 0,
+        explain: "El texto dice: 'viajamos a la costa de España'." },
+      { prompt: "¿Qué hicieron antes de cenar?", options: ["Caminaron por la playa", "Durmieron una siesta", "Fueron de compras", "Vieron una película"], answer: 0,
+        explain: "El texto dice: 'decidimos caminar por la playa antes de cenar'." },
+      { prompt: "¿Por qué el cielo tenía colores hermosos?", options: ["Porque el sol se estaba poniendo", "Porque había una tormenta", "Porque era de noche", "Porque había fuegos artificiales"], answer: 0,
+        explain: "El texto dice: 'el cielo tenía colores hermosos porque el sol se estaba poniendo'." },
+      { prompt: "¿Qué cenaron esa noche?", options: ["Mariscos frescos", "Pasta", "Pizza", "Carne asada"], answer: 0,
+        explain: "El texto dice: 'cenamos mariscos frescos'." },
+    ],
+  },
+  {
+    id: "otra_carrera",
+    title: "Si pudiera cambiar algo",
+    level: "Advanced",
+    text: "Si pudiera cambiar algo de mi vida, estudiaría otra carrera. Cuando era joven, mis padres querían que yo fuera abogado, pero a mí siempre me ha interesado más el arte. A veces pienso que, si hubiera tenido más confianza en aquel entonces, habría seguido mi propio camino desde el principio. Aun así, no me arrepiento completamente, porque mi trabajo actual me ha enseñado mucho sobre disciplina y paciencia.",
+    questions: [
+      { prompt: "¿Qué querían los padres del narrador?", options: ["Que fuera abogado", "Que fuera médico", "Que fuera artista", "Que fuera profesor"], answer: 0,
+        explain: "El texto dice: 'mis padres querían que yo fuera abogado'." },
+      { prompt: "¿Qué le ha interesado siempre al narrador?", options: ["El arte", "La ley", "La medicina", "Los negocios"], answer: 0,
+        explain: "El texto dice: 'a mí siempre me ha interesado más el arte'." },
+      { prompt: "¿Se arrepiente completamente el narrador de su camino?", options: ["No, no completamente", "Sí, completamente", "No lo menciona", "Sí, un poco"], answer: 0,
+        explain: "El texto dice: 'no me arrepiento completamente'." },
+    ],
+  },
 ];
 
 // Flat search index combining reference + lesson explanations,
