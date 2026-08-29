@@ -80,15 +80,25 @@ into each device once.
 
 There are three check-ins, each covering more ground than the last:
 
-- **Beginning of Year** — foundational topics only (present tense, ser/estar, basic vocab, etc.), easiest difficulty. Skips the subjunctive and the preterite-vs-imperfect distinction.
-- **Middle of Year** — adds the preterite-vs-imperfect distinction and harder questions across every foundational topic. Still skips the subjunctive.
-- **End of Year** — everything, at full difficulty, including the subjunctive.
+- **Beginning of Year** — foundational topics only (present tense, ser/estar, basic commands, basic vocab, etc.), easiest difficulty. Skips the subjunctive, future, conditional, and the preterite-vs-imperfect distinction.
+- **Middle of Year** — adds the preterite-vs-imperfect distinction, the future tense, and harder questions across every foundational topic. Still skips the subjunctive and conditional.
+- **End of Year** — everything, at full difficulty, including the subjunctive and conditional.
 
 Each version includes **every** matching question for every included skill area (not a random sample), so there's enough evidence per topic to actually reflect mastery rather than one lucky or unlucky guess. Answer order is shuffled every time, so the correct answer isn't always in the same position.
 
+17 grammar skills are covered in total, including present/preterite/imperfect tenses, ser/estar, reflexive verbs, gustar-type verbs, object pronouns, por/para, adjective agreement, comparatives, question words, commands (imperative), future tense, and conditional tense.
+
 ## Vocabulary flashcards
 
-Separate from the grammar skills, the **Vocabulary** tab has topic-based flashcard sets (fruits, clothing, family, house & rooms, colors & numbers, daily routine). Each card can be marked "I know it" or "Don't know yet" — unknown cards keep coming back around in the same session until marked known, and known/unknown status is saved to Supabase so it persists across visits. Add more categories or words by editing `VOCAB_CATEGORIES` in `data.js`.
+Separate from the grammar skills, the **Vocabulary** tab has 10 topic-based flashcard sets (fruits, clothing, family, house & rooms, colors & numbers, daily routine, food & dining, travel, emotions, and idiomatic expressions — 120 words/phrases total). Each card can be marked "I know it" or "Don't know yet" — unknown cards keep coming back around in the same session until marked known, and known/unknown status is saved to Supabase so it persists across visits. Add more categories or words by editing `VOCAB_CATEGORIES` in `data.js`.
+
+## Mixed Review
+
+At the top of the Lessons tab, "Mixed Review" builds one combined session: 5 practice items from your current weakest grammar skill, plus 5 vocabulary words you haven't marked known yet, shuffled together. A lighter-weight way to touch both grammar and vocab without switching tabs.
+
+## Settings: data export and granular reset
+
+Settings now has a "Download my data" button that exports everything (scores, diagnostic history, completed lessons, vocab progress) as a JSON file, and two separate reset buttons — one for grammar progress, one for vocabulary progress — instead of one all-or-nothing reset.
 
 ## Extending it later
 
@@ -100,4 +110,4 @@ Separate from the grammar skills, the **Vocabulary** tab has topic-based flashca
   two people on the same Supabase project, you'd add a `user_id` column to
   each table and a simple name-select on load — ask me if you want this
   built out.
-- **How comprehensive is this?** Honestly, it's a solid Spanish 1–2 refresher — not a complete curriculum. It doesn't yet cover the full subjunctive system (imperfect subjunctive, conditional sentences), future/conditional tenses, formal commands, or a large vocabulary base. Expanding toward that is an ongoing content project, done the same way as everything else here: adding entries to `data.js`.
+- **How comprehensive is this?** Better than before, but still not a complete curriculum. Not yet covered: imperfect subjunctive and *si*-clauses ("if I had..."), present/past perfect tenses, reading passages, open-ended writing practice, true spaced-repetition scheduling for vocab (right now it's just known/not-known), an AI-guided conversation-practice mode, letting the learner add her own vocab through the app itself, a timed/exam-style quiz mode, and PDF export. All addable the same way as everything else here: extending `data.js` and `app.js`.
