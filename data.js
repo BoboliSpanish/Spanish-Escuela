@@ -30,6 +30,8 @@ const QUESTIONS = [
   // present
   { skill:"present", difficulty:1, prompt:"Yo ___ en Madrid.", options:["vivo","vive","vives","viven"], answer:0,
     explain:"'Vivir' → yo vivo. First-person singular -ir verbs drop -ir and add -o." },
+  { skill:"present", difficulty:1, prompt:"Nosotros ___ (hablar) español en casa.", options:["hablamos","hablan","hablas","habla"], answer:0,
+    explain:"Regular -ar verb, nosotros form: habl- + -amos." },
   { skill:"present", difficulty:2, prompt:"Nosotros ___ (tener) mucha tarea hoy.", options:["tenemos","tienen","tenéis","tengo"], answer:0,
     explain:"'Tener' is irregular in most forms but regular (-emos) for nosotros: tenemos." },
   { skill:"present", difficulty:2, prompt:"Ella ___ (pedir) un café todas las mañanas.", options:["pide","pido","pedes","piden"], answer:0,
@@ -50,6 +52,8 @@ const QUESTIONS = [
   // preterite
   { skill:"preterite", difficulty:1, prompt:"Ayer yo ___ (comer) tacos.", options:["comí","como","comía","comiendo"], answer:0,
     explain:"Preterite for a completed past action: comí (yo, -er verb)." },
+  { skill:"preterite", difficulty:1, prompt:"Ella ___ (hablar) con su jefe ayer.", options:["habló","habla","hablaba","hablando"], answer:0,
+    explain:"Regular -ar preterite, third person singular: habl- + -ó." },
   { skill:"preterite", difficulty:2, prompt:"Ellos ___ (ir) al cine el sábado.", options:["fueron","iban","van","fue"], answer:0,
     explain:"'Ir' preterite is irregular: fui, fuiste, fue, fuimos, fueron (identical to 'ser' preterite)." },
   { skill:"preterite", difficulty:2, prompt:"¿___ (tú / hacer) la tarea anoche?", options:["Hiciste","Haces","Hacías","Hago"], answer:0,
@@ -60,6 +64,8 @@ const QUESTIONS = [
   // imperfect
   { skill:"imperfect", difficulty:1, prompt:"Cuando era niña, ella ___ (jugar) en el parque todos los días.", options:["jugaba","jugó","juega","jugará"], answer:0,
     explain:"Imperfect describes repeated/habitual past actions: jugaba (used to play)." },
+  { skill:"imperfect", difficulty:1, prompt:"Nosotros ___ (vivir) en Chicago de niños.", options:["vivíamos","vivimos","vivíanos","vivamos"], answer:0,
+    explain:"Regular -ir imperfect, nosotros form: viv- + -íamos." },
   { skill:"imperfect", difficulty:2, prompt:"Nosotros ___ (ser) muy jóvenes en esa época.", options:["éramos","fuimos","somos","seríamos"], answer:0,
     explain:"'Ser' imperfect is irregular: era, eras, era, éramos, eran — used for ongoing states in the past." },
   { skill:"imperfect", difficulty:2, prompt:"Mientras yo ___ (leer), mi madre cocinaba.", options:["leía","leí","leo","leyó"], answer:0,
@@ -68,6 +74,8 @@ const QUESTIONS = [
   // pret_vs_imp
   { skill:"pret_vs_imp", difficulty:2, prompt:"Yo ___ (dormir) cuando el teléfono ___ (sonar).", options:["dormía / sonó","dormí / sonaba","dormía / sonaba","dormí / sonó"], answer:0,
     explain:"Ongoing background action (imperfect: dormía) interrupted by a single completed event (preterite: sonó)." },
+  { skill:"pret_vs_imp", difficulty:2, prompt:"Todos los veranos, nosotros ___ (ir) a la playa, pero el verano pasado no ___ (poder).", options:["íbamos / pudimos","fuimos / podíamos","íbamos / podíamos","fuimos / pudimos"], answer:0,
+    explain:"The recurring habit ('every summer') is imperfect (íbamos); the one specific exception is preterite (pudimos)." },
   { skill:"pret_vs_imp", difficulty:3, prompt:"De niño, ___ (ir, yo) a la playa cada verano, pero un año no ___ (poder) ir.", options:["iba / pude","fui / podía","iba / pudo","fui / pude"], answer:0,
     explain:"Habitual repeated action → imperfect (iba). The one specific exception year → preterite (pude/no pude)." },
   { skill:"pret_vs_imp", difficulty:3, prompt:"¿Qué frase describe mejor una acción ÚNICA y completada?", options:["Ayer llovió toda la tarde.","Llovía mucho ese verano.","Siempre llovía en abril.","Llovía cuando salí."], answer:0,
@@ -76,6 +84,8 @@ const QUESTIONS = [
   // reflexive
   { skill:"reflexive", difficulty:1, prompt:"Yo ___ (levantarse) a las siete.", options:["me levanto","levanto","se levanta","te levantas"], answer:0,
     explain:"Reflexive pronoun must match the subject: yo → me. 'Me levanto.'" },
+  { skill:"reflexive", difficulty:1, prompt:"Ellos ___ (lavarse) las manos antes de comer.", options:["se lavan","lavan","nos lavamos","se lava"], answer:0,
+    explain:"Ellos → reflexive pronoun 'se', verb 'lavan': se lavan." },
   { skill:"reflexive", difficulty:2, prompt:"¿A qué hora ___ (ustedes / acostarse)?", options:["se acuestan","acuestan","se acuesta","nos acostamos"], answer:0,
     explain:"Ustedes → se acuestan (stem-changing o→ue, reflexive pronoun 'se')." },
   { skill:"reflexive", difficulty:2, prompt:"Elige la oración correcta:", options:["Ella se lava las manos.","Ella lava se las manos.","Ella las manos se lava.","Ella lava las manos se."], answer:0,
@@ -84,6 +94,8 @@ const QUESTIONS = [
   // gustar
   { skill:"gustar", difficulty:1, prompt:"A mí ___ el chocolate.", options:["me gusta","me gustan","gusto","le gusta"], answer:0,
     explain:"'Chocolate' is singular, so the verb is 'gusta', with indirect object pronoun 'me'." },
+  { skill:"gustar", difficulty:1, prompt:"A nosotros ___ el fútbol.", options:["nos gusta","nos gustan","gustamos","les gusta"], answer:0,
+    explain:"'Fútbol' is singular → gusta, with indirect object pronoun 'nos' for nosotros." },
   { skill:"gustar", difficulty:2, prompt:"A ella ___ las películas de terror.", options:["le gustan","le gusta","la gusta","gustan"], answer:0,
     explain:"'Películas' is plural → gustan. Indirect object pronoun 'le' refers to 'ella'." },
   { skill:"gustar", difficulty:2, prompt:"¿Qué verbo NO sigue el mismo patrón que 'gustar'?", options:["hablar","interesar","encantar","molestar"], answer:0,
@@ -92,6 +104,8 @@ const QUESTIONS = [
   // subjunctive
   { skill:"subjunctive", difficulty:2, prompt:"Espero que tú ___ (venir) a la fiesta.", options:["vengas","vienes","vendrás","vinieras"], answer:0,
     explain:"'Espero que' triggers the subjunctive: vengas (present subjunctive of venir)." },
+  { skill:"subjunctive", difficulty:2, prompt:"Ojalá que nosotros ___ (ganar) el partido.", options:["ganemos","ganamos","ganaremos","ganáramos"], answer:0,
+    explain:"'Ojalá que' (I hope/wish) always triggers subjunctive: ganemos." },
   { skill:"subjunctive", difficulty:3, prompt:"Es importante que nosotros ___ (llegar) a tiempo.", options:["lleguemos","llegamos","llegaremos","llegábamos"], answer:0,
     explain:"Impersonal expressions of importance/necessity trigger subjunctive: lleguemos." },
   { skill:"subjunctive", difficulty:3, prompt:"No creo que él ___ (tener) razón.", options:["tenga","tiene","tendrá","tuviera"], answer:0,
@@ -100,22 +114,32 @@ const QUESTIONS = [
   // object_pron
   { skill:"object_pron", difficulty:1, prompt:"¿Tienes el libro? Sí, ___ tengo.", options:["lo","la","le","los"], answer:0,
     explain:"'El libro' is masculine singular → direct object pronoun 'lo'." },
+  { skill:"object_pron", difficulty:1, prompt:"¿Compraste las manzanas? Sí, ___ compré.", options:["las","los","la","le"], answer:0,
+    explain:"'Las manzanas' is feminine plural → direct object pronoun 'las'." },
   { skill:"object_pron", difficulty:2, prompt:"Voy a dar___ el regalo a mi mamá.", options:["le","la","lo","les"], answer:0,
     explain:"Indirect object pronoun for 'a mi mamá' → le. (Full sentence: Voy a darle el regalo a mi mamá.)" },
+  { skill:"object_pron", difficulty:2, prompt:"___ escribí una carta a mis abuelos.", options:["Les","Los","Las","Le"], answer:0,
+    explain:"'A mis abuelos' is plural → indirect object pronoun 'les'." },
   { skill:"object_pron", difficulty:3, prompt:"¿Le diste las llaves a Pedro? Sí, ___ di ayer.", options:["se las","le las","se los","les las"], answer:0,
     explain:"When indirect (le) and direct (las) object pronouns combine, 'le' becomes 'se': se las di." },
 
   // por_para
   { skill:"por_para", difficulty:1, prompt:"Este regalo es ___ ti.", options:["para","por","de","a"], answer:0,
     explain:"'Para' marks the recipient/beneficiary of something." },
+  { skill:"por_para", difficulty:1, prompt:"Gracias ___ tu ayuda.", options:["por","para","de","con"], answer:0,
+    explain:"'Por' expresses the reason/cause behind gratitude." },
   { skill:"por_para", difficulty:2, prompt:"Caminamos ___ el parque toda la tarde.", options:["por","para","en","a"], answer:0,
     explain:"'Por' expresses movement through/around a space." },
+  { skill:"por_para", difficulty:2, prompt:"Necesito terminar esto ___ el viernes.", options:["para","por","en","a"], answer:0,
+    explain:"'Para' marks a deadline — the point something is aimed toward." },
   { skill:"por_para", difficulty:3, prompt:"Lo hice ___ amor, no ___ dinero.", options:["por / por","para / para","por / para","para / por"], answer:0,
     explain:"'Por' expresses the motive/reason behind an action — both blanks here describe cause, so both are 'por'." },
 
   // adj_agreement
   { skill:"adj_agreement", difficulty:1, prompt:"Las casas ___ (blanco).", options:["blancas","blanco","blancos","blanca"], answer:0,
     explain:"'Casas' is feminine plural → blancas." },
+  { skill:"adj_agreement", difficulty:1, prompt:"Tengo un perro ___ (pequeño).", options:["pequeño","pequeña","pequeños","pequeñas"], answer:0,
+    explain:"'Perro' is masculine singular → pequeño." },
   { skill:"adj_agreement", difficulty:2, prompt:"Un ___ (grande) problema.", options:["gran","grande","grandes","granes"], answer:0,
     explain:"'Grande' shortens to 'gran' before a singular noun (m. or f.) when it means 'great', not 'big'." },
   { skill:"adj_agreement", difficulty:2, prompt:"Elige la oración correcta:", options:["Tengo un carro nuevo.","Tengo una carro nuevo.","Tengo un carro nueva.","Tengo unos carro nuevo."], answer:0,
@@ -124,6 +148,8 @@ const QUESTIONS = [
   // comparatives
   { skill:"comparatives", difficulty:1, prompt:"Mi hermano es ___ alto ___ yo.", options:["más / que","más / de","tan / que","menos / a"], answer:0,
     explain:"Comparative of superiority: más + adjective + que." },
+  { skill:"comparatives", difficulty:1, prompt:"Ella tiene ___ dinero ___ yo (less).", options:["menos / que","más / que","tan / como","menos / de"], answer:0,
+    explain:"Comparative of inferiority: menos + noun + que." },
   { skill:"comparatives", difficulty:2, prompt:"Ella es ___ inteligente ___ su hermana (equal).", options:["tan / como","más / que","menos / que","tanto / como"], answer:0,
     explain:"Equal comparison with an adjective: tan + adjective + como." },
   { skill:"comparatives", difficulty:2, prompt:"Esta es la ciudad ___ bonita del país.", options:["más","tan","tanta","tan bien"], answer:0,
@@ -132,6 +158,8 @@ const QUESTIONS = [
   // question_words
   { skill:"question_words", difficulty:1, prompt:"___ te llamas?", options:["Cómo","Qué","Cuál","Quién"], answer:0,
     explain:"'¿Cómo te llamas?' — asking for name uses 'cómo', not 'qué'." },
+  { skill:"question_words", difficulty:1, prompt:"¿___ vives?", options:["Dónde","Qué","Cuál","Cuándo"], answer:0,
+    explain:"'¿Dónde vives?' asks about location." },
   { skill:"question_words", difficulty:2, prompt:"¿___ es tu número de teléfono?", options:["Cuál","Qué","Cómo","Quién"], answer:0,
     explain:"'Cuál' is used to ask 'which one' among options — appropriate for a specific piece of info like a phone number." },
   { skill:"question_words", difficulty:2, prompt:"Reordena: '¿tienes / cuántos / hermanos?'", options:["¿Cuántos hermanos tienes?","¿Tienes cuántos hermanos?","¿Hermanos cuántos tienes?","¿Cuántos tienes hermanos?"], answer:0,
@@ -142,6 +170,8 @@ const QUESTIONS = [
     explain:"'Hacer la compra' = to do the grocery shopping." },
   { skill:"vocab_daily", difficulty:1, prompt:"'Alarm clock' =", options:["el despertador","el reloj de pared","la alarma de coche","el timbre"], answer:0,
     explain:"'El despertador' specifically means alarm clock." },
+  { skill:"vocab_daily", difficulty:1, prompt:"'To take a walk' =", options:["dar un paseo","dar la vuelta","hacer paso","tomar aire"], answer:0,
+    explain:"'Dar un paseo' is the standard phrase for taking a walk." },
   { skill:"vocab_daily", difficulty:2, prompt:"'I'm running late' =", options:["Voy tarde","Estoy tardando","Soy tarde","Voy con tarde"], answer:0,
     explain:"'Voy tarde' is the natural idiom for running late." },
 ];
@@ -161,6 +191,13 @@ const LESSONS = {
       { prompt: "Tú ___ (querer) salir esta noche.", answer: "quieres" },
       { prompt: "Ellos ___ (poder) venir mañana.", answer: "pueden" },
       { prompt: "Yo ___ (pedir) ayuda.", answer: "pido" },
+      { prompt: "Nosotros ___ (dormir) ocho horas.", answer: "dormimos" },
+      { prompt: "Ella ___ (empezar) la clase a las nueve.", answer: "empieza" },
+      { prompt: "Ustedes ___ (jugar) al fútbol los sábados.", answer: "juegan" },
+      { prompt: "Yo ___ (salir) de casa a las siete.", answer: "salgo" },
+      { prompt: "Él ___ (decir) siempre la verdad.", answer: "dice" },
+      { prompt: "Nosotros ___ (tener) prisa hoy.", answer: "tenemos" },
+      { prompt: "Ellas ___ (venir) a la fiesta esta noche.", answer: "vienen" },
     ],
   }],
   ser_estar: [{
@@ -171,6 +208,13 @@ const LESSONS = {
       { prompt: "Mis padres ___ de México.", answer: "son" },
       { prompt: "El café ___ frío ya.", answer: "está" },
       { prompt: "Ella ___ lista para el examen (prepared).", answer: "está" },
+      { prompt: "Nosotros ___ estudiantes.", answer: "somos" },
+      { prompt: "La puerta ___ abierta.", answer: "está" },
+      { prompt: "Hoy ___ lunes.", answer: "es" },
+      { prompt: "¿Cómo ___ tú? (feeling right now)", answer: "estás" },
+      { prompt: "El libro ___ sobre la mesa.", answer: "está" },
+      { prompt: "Mi tío ___ médico.", answer: "es" },
+      { prompt: "Los niños ___ cansados después de jugar.", answer: "están" },
     ],
   }],
   preterite: [{
@@ -180,6 +224,14 @@ const LESSONS = {
     practice: [
       { prompt: "Yo ___ (hacer) la cena anoche.", answer: "hice" },
       { prompt: "Nosotros ___ (ir) al mercado ayer.", answer: "fuimos" },
+      { prompt: "Ella ___ (comprar) un vestido nuevo.", answer: "compró" },
+      { prompt: "Tú ___ (llegar) tarde otra vez.", answer: "llegaste" },
+      { prompt: "Ellos ___ (ver) una película anoche.", answer: "vieron" },
+      { prompt: "Yo ___ (dar) un regalo a mi hermana.", answer: "di" },
+      { prompt: "Nosotros ___ (decir) la verdad.", answer: "dijimos" },
+      { prompt: "Ella ___ (poner) la mesa antes de cenar.", answer: "puso" },
+      { prompt: "Ustedes ___ (venir) temprano.", answer: "vinieron" },
+      { prompt: "Yo ___ (leer) el libro completo.", answer: "leí" },
     ],
   }],
   imperfect: [{
@@ -189,6 +241,14 @@ const LESSONS = {
     practice: [
       { prompt: "De niño, yo ___ (jugar) fútbol cada fin de semana.", answer: "jugaba" },
       { prompt: "Ellos ___ (ser) muy amables.", answer: "eran" },
+      { prompt: "Nosotros ___ (vivir) en una casa pequeña.", answer: "vivíamos" },
+      { prompt: "Tú siempre ___ (llegar) a tiempo.", answer: "llegabas" },
+      { prompt: "Ella ___ (tener) mucho miedo de noche.", answer: "tenía" },
+      { prompt: "Yo ___ (ir) a la escuela a pie.", answer: "iba" },
+      { prompt: "Hacía sol y los pájaros ___ (cantar).", answer: "cantaban" },
+      { prompt: "Nosotros ___ (ver) televisión todas las tardes.", answer: "veíamos" },
+      { prompt: "Mis abuelos ___ (vivir) en el campo.", answer: "vivían" },
+      { prompt: "Yo ___ (ser) muy tímido de pequeño.", answer: "era" },
     ],
   }],
   pret_vs_imp: [{
@@ -197,6 +257,15 @@ const LESSONS = {
     examples: ["Llovía (bg) cuando salimos (event).", "Ella leía un libro cuando la llamé."],
     practice: [
       { prompt: "Yo ___ (caminar) por la calle cuando ___ (ver) a mi amigo.", answer: "caminaba / vi" },
+      { prompt: "Ella ___ (dormir) cuando sonó el teléfono.", answer: "dormía" },
+      { prompt: "Nosotros ___ (comer) cuando empezó a llover.", answer: "comíamos" },
+      { prompt: "De niño, ___ (ir) a la playa cada verano, pero un año no ___ (poder) ir.", answer: "iba / pude" },
+      { prompt: "Ayer ___ (llover) toda la tarde (one finished event).", answer: "llovió" },
+      { prompt: "Todos los días ella ___ (leer) el periódico.", answer: "leía" },
+      { prompt: "Anoche yo ___ (leer) un capítulo completo.", answer: "leí" },
+      { prompt: "Mientras tú ___ (cocinar), yo puse la mesa.", answer: "cocinabas" },
+      { prompt: "El año pasado nosotros ___ (viajar) a España.", answer: "viajamos" },
+      { prompt: "Cuando era joven, mi padre ___ (trabajar) en una fábrica.", answer: "trabajaba" },
     ],
   }],
   reflexive: [{
@@ -206,6 +275,14 @@ const LESSONS = {
     practice: [
       { prompt: "Yo ___ (bañarse) antes de dormir.", answer: "me baño" },
       { prompt: "¿A qué hora ___ (tú / despertarse)?", answer: "te despiertas" },
+      { prompt: "Ellos ___ (vestirse) rápido.", answer: "se visten" },
+      { prompt: "Nosotros ___ (sentarse) en el sofá.", answer: "nos sentamos" },
+      { prompt: "Ella ___ (maquillarse) cada mañana.", answer: "se maquilla" },
+      { prompt: "¿Cómo ___ (ustedes / llamarse)?", answer: "se llaman" },
+      { prompt: "Yo ___ (cepillarse) los dientes dos veces al día.", answer: "me cepillo" },
+      { prompt: "Él ___ (afeitarse) todos los días.", answer: "se afeita" },
+      { prompt: "Nosotros ___ (dormirse) tarde los viernes.", answer: "nos dormimos" },
+      { prompt: "Tú ___ (ducharse) por la mañana.", answer: "te duchas" },
     ],
   }],
   gustar: [{
@@ -215,6 +292,14 @@ const LESSONS = {
     practice: [
       { prompt: "A nosotros ___ (gustar) los tacos.", answer: "nos gustan" },
       { prompt: "A él ___ (encantar) la música clásica.", answer: "le encanta" },
+      { prompt: "A mí ___ (interesar) la historia.", answer: "me interesa" },
+      { prompt: "A ellos ___ (molestar) el ruido.", answer: "les molesta" },
+      { prompt: "A ti ___ (gustar) el chocolate.", answer: "te gusta" },
+      { prompt: "A ella ___ (faltar) tiempo.", answer: "le falta" },
+      { prompt: "A nosotros ___ (encantar) viajar.", answer: "nos encanta" },
+      { prompt: "A mí ___ (gustar) las playas.", answer: "me gustan" },
+      { prompt: "A ustedes ___ (interesar) los deportes.", answer: "les interesa" },
+      { prompt: "A él ___ (gustar) leer novelas.", answer: "le gusta" },
     ],
   }],
   subjunctive: [{
@@ -224,6 +309,14 @@ const LESSONS = {
     practice: [
       { prompt: "Espero que ella ___ (poder) venir.", answer: "pueda" },
       { prompt: "Es necesario que ustedes ___ (estudiar).", answer: "estudien" },
+      { prompt: "Quiero que tú ___ (ser) feliz.", answer: "seas" },
+      { prompt: "Dudo que él ___ (saber) la respuesta.", answer: "sepa" },
+      { prompt: "Ojalá que ___ (llover) mañana.", answer: "llueva" },
+      { prompt: "Es importante que nosotros ___ (llegar) a tiempo.", answer: "lleguemos" },
+      { prompt: "No creo que ellos ___ (tener) razón.", answer: "tengan" },
+      { prompt: "Espero que tú ___ (dormir) bien.", answer: "duermas" },
+      { prompt: "Es posible que ella ___ (venir) tarde.", answer: "venga" },
+      { prompt: "Quiero que ustedes ___ (hacer) la tarea.", answer: "hagan" },
     ],
   }],
   object_pron: [{
@@ -233,6 +326,14 @@ const LESSONS = {
     practice: [
       { prompt: "¿Compraste el pan? Sí, ___ compré.", answer: "lo" },
       { prompt: "___ mandé un mensaje a Sara.", answer: "Le" },
+      { prompt: "¿Tienes las llaves? Sí, ___ tengo.", answer: "las" },
+      { prompt: "Voy a decir___ la verdad a mis padres.", answer: "les" },
+      { prompt: "¿Viste a María? Sí, ___ vi ayer.", answer: "la" },
+      { prompt: "Ella ___ escribió una carta a su abuelo.", answer: "le" },
+      { prompt: "¿Los libros? Ya ___ leí.", answer: "los" },
+      { prompt: "___ compré un regalo a mi hermana.", answer: "Le" },
+      { prompt: "¿Me puedes ayudar? Sí, ___ ayudo.", answer: "te" },
+      { prompt: "Se ___ di ayer (the keys, to him).", answer: "las" },
     ],
   }],
   por_para: [{
@@ -242,6 +343,14 @@ const LESSONS = {
     practice: [
       { prompt: "Este libro es ___ mi clase de historia.", answer: "para" },
       { prompt: "Pasamos ___ el centro de la ciudad.", answer: "por" },
+      { prompt: "Trabajo ___ una empresa internacional.", answer: "para" },
+      { prompt: "Gracias ___ tu ayuda.", answer: "por" },
+      { prompt: "Necesito esto ___ el lunes.", answer: "para" },
+      { prompt: "Viajamos ___ tren.", answer: "por" },
+      { prompt: "Lo compré ___ diez dólares.", answer: "por" },
+      { prompt: "Estudio ___ ser doctora.", answer: "para" },
+      { prompt: "Caminamos ___ el parque.", answer: "por" },
+      { prompt: "Este regalo es ___ ti.", answer: "para" },
     ],
   }],
   adj_agreement: [{
@@ -251,6 +360,14 @@ const LESSONS = {
     practice: [
       { prompt: "Tengo dos perros ___ (pequeño).", answer: "pequeños" },
       { prompt: "Es un ___ (malo) día.", answer: "mal" },
+      { prompt: "Las flores son ___ (rojo).", answer: "rojas" },
+      { prompt: "Un ___ (grande) hombre (a great man).", answer: "gran" },
+      { prompt: "Mis amigas son ___ (simpático).", answer: "simpáticas" },
+      { prompt: "Es la ___ (primero) vez.", answer: "primera" },
+      { prompt: "Tengo un carro ___ (nuevo).", answer: "nuevo" },
+      { prompt: "Las casas son ___ (blanco).", answer: "blancas" },
+      { prompt: "Es un ___ (bueno) amigo.", answer: "buen" },
+      { prompt: "Los libros son ___ (interesante).", answer: "interesantes" },
     ],
   }],
   comparatives: [{
@@ -260,6 +377,14 @@ const LESSONS = {
     practice: [
       { prompt: "Mi casa es ___ grande ___ la tuya (bigger than).", answer: "más / que" },
       { prompt: "Este pastel es ___ (bueno, superlative) de todos.", answer: "el mejor" },
+      { prompt: "Ella es ___ alta ___ su hermano (equal).", answer: "tan / como" },
+      { prompt: "Soy ___ rápido ___ tú.", answer: "más / que" },
+      { prompt: "Este examen es ___ difícil ___ el anterior (less).", answer: "menos / que" },
+      { prompt: "Es el ___ (malo, superlative) restaurante de la ciudad.", answer: "el peor" },
+      { prompt: "Tengo ___ dinero ___ tú (less).", answer: "menos / que" },
+      { prompt: "Ella corre ___ rápido ___ yo (as fast as).", answer: "tan / como" },
+      { prompt: "Es la ciudad ___ bonita del país.", answer: "más" },
+      { prompt: "Mi hermano es ___ joven ___ yo (less).", answer: "menos / que" },
     ],
   }],
   question_words: [{
@@ -269,6 +394,14 @@ const LESSONS = {
     practice: [
       { prompt: "¿___ hora es? (What time)", answer: "Qué" },
       { prompt: "¿___ de estos dos prefieres?", answer: "Cuál" },
+      { prompt: "¿___ vives?", answer: "Dónde" },
+      { prompt: "¿___ es tu cumpleaños?", answer: "Cuándo" },
+      { prompt: "¿___ hermanos tienes?", answer: "Cuántos" },
+      { prompt: "¿___ te llamas?", answer: "Cómo" },
+      { prompt: "¿___ es tu color favorito?", answer: "Cuál" },
+      { prompt: "¿___ viene a la fiesta?", answer: "Quién" },
+      { prompt: "¿___ estudias español?", answer: "Por qué" },
+      { prompt: "¿___ cuesta esto?", answer: "Cuánto" },
     ],
   }],
   vocab_daily: [{
@@ -278,15 +411,63 @@ const LESSONS = {
     practice: [
       { prompt: "'To be in a hurry' =", answer: "tener prisa" },
       { prompt: "'To take a walk' =", answer: "dar un paseo" },
+      { prompt: "'To do the grocery shopping' =", answer: "hacer la compra" },
+      { prompt: "'To meet up with someone' =", answer: "quedar con alguien" },
+      { prompt: "'Alarm clock' =", answer: "el despertador" },
+      { prompt: "'To fall asleep' =", answer: "quedarse dormido" },
+      { prompt: "'To take care of' =", answer: "cuidar de" },
+      { prompt: "'To be right (correct)' =", answer: "tener razón" },
+      { prompt: "'To pay attention' =", answer: "prestar atención" },
+      { prompt: "'To take a long time' =", answer: "tardar" },
     ],
   }],
 };
 
 // ------------------------------------------------------------
-// REFERENCE — built-in grammar Q&A, used by the "Ask why" panel
-// when no API key is configured (and always searchable even
-// when one is).
+// VOCABULARY — flashcard categories, separate from the grammar
+// skills above. Each word: {es, en}. Extend freely — add a new
+// category object here to have it appear in the Vocabulary tab.
 // ------------------------------------------------------------
+const VOCAB_CATEGORIES = [
+  { id: "fruits", label: "Fruits / Frutas", words: [
+    { es: "la manzana", en: "apple" }, { es: "el plátano", en: "banana" }, { es: "la naranja", en: "orange" },
+    { es: "la fresa", en: "strawberry" }, { es: "la uva", en: "grape" }, { es: "la piña", en: "pineapple" },
+    { es: "la sandía", en: "watermelon" }, { es: "el limón", en: "lemon" }, { es: "la pera", en: "pear" },
+    { es: "el melocotón", en: "peach" }, { es: "la cereza", en: "cherry" }, { es: "el mango", en: "mango" },
+  ]},
+  { id: "clothing", label: "Clothing / Ropa", words: [
+    { es: "la camisa", en: "shirt" }, { es: "los pantalones", en: "pants" }, { es: "el vestido", en: "dress" },
+    { es: "la falda", en: "skirt" }, { es: "los zapatos", en: "shoes" }, { es: "la chaqueta", en: "jacket" },
+    { es: "el abrigo", en: "coat" }, { es: "la corbata", en: "tie" }, { es: "el sombrero", en: "hat" },
+    { es: "los calcetines", en: "socks" }, { es: "el cinturón", en: "belt" }, { es: "la bufanda", en: "scarf" },
+  ]},
+  { id: "family", label: "Family / Familia", words: [
+    { es: "la madre", en: "mother" }, { es: "el padre", en: "father" }, { es: "el hermano", en: "brother" },
+    { es: "la hermana", en: "sister" }, { es: "el abuelo", en: "grandfather" }, { es: "la abuela", en: "grandmother" },
+    { es: "el tío", en: "uncle" }, { es: "la tía", en: "aunt" }, { es: "el primo", en: "cousin (male)" },
+    { es: "la prima", en: "cousin (female)" }, { es: "el esposo", en: "husband" }, { es: "la esposa", en: "wife" },
+  ]},
+  { id: "house", label: "House & Rooms / Casa y Cuartos", words: [
+    { es: "la cocina", en: "kitchen" }, { es: "el dormitorio", en: "bedroom" }, { es: "el baño", en: "bathroom" },
+    { es: "la sala", en: "living room" }, { es: "el jardín", en: "garden/yard" }, { es: "la puerta", en: "door" },
+    { es: "la ventana", en: "window" }, { es: "el techo", en: "roof/ceiling" }, { es: "la escalera", en: "stairs" },
+    { es: "el garaje", en: "garage" }, { es: "el comedor", en: "dining room" }, { es: "el sótano", en: "basement" },
+  ]},
+  { id: "colors_numbers", label: "Colors & Numbers / Colores y Números", words: [
+    { es: "rojo", en: "red" }, { es: "azul", en: "blue" }, { es: "verde", en: "green" },
+    { es: "amarillo", en: "yellow" }, { es: "negro", en: "black" }, { es: "blanco", en: "white" },
+    { es: "morado", en: "purple" }, { es: "anaranjado", en: "orange (color)" }, { es: "diez", en: "ten" },
+    { es: "veinte", en: "twenty" }, { es: "cien", en: "one hundred" }, { es: "mil", en: "one thousand" },
+  ]},
+  { id: "daily_routine", label: "Daily Routine / Rutina Diaria", words: [
+    { es: "despertarse", en: "to wake up" }, { es: "levantarse", en: "to get up" }, { es: "ducharse", en: "to shower" },
+    { es: "desayunar", en: "to have breakfast" }, { es: "vestirse", en: "to get dressed" }, { es: "trabajar", en: "to work" },
+    { es: "almorzar", en: "to have lunch" }, { es: "cenar", en: "to have dinner" }, { es: "acostarse", en: "to go to bed" },
+    { es: "descansar", en: "to rest" }, { es: "limpiar", en: "to clean" }, { es: "cocinar", en: "to cook" },
+  ]},
+];
+
+
 const REFERENCE = [
   { skill:"ser_estar", q:"Why does 'estar' exist if 'ser' already means 'to be'?",
     a:"Spanish splits 'to be' into two verbs because it distinguishes what something fundamentally IS (ser) from the state it's currently IN (estar). English collapses both into one verb and relies on context — Spanish makes the distinction explicit. That's also why the same adjective can mean two different things depending on which verb you pair it with: 'ser aburrido' (to be a boring person) vs. 'estar aburrido' (to be bored right now)." },
