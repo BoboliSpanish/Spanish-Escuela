@@ -25,6 +25,7 @@ const memory = {
   attempts_log: [],     // {skill_id, correct, source, created_at}
   lessons_completed: {},// lesson_key -> completed_at
   daily_activity: {},   // date -> true
+  vocab_progress: {},   // word_id -> {status, last_reviewed}
 };
 
 export const DB = {
@@ -151,5 +152,30 @@ export const DB = {
       } else break;
     }
     return streak;
+  },
+
+  async getVocabProgress() {
+    if (!client) return { ...memory.vocab_progress };
+    try {
+      const { data, error } = await client.from("vocab_progress").select("*");
+      if (error) throw error;
+      const out = {};
+      data.forEach(row => (out[row.word_id] = { status: row.status, last_reviewed: row.last_reviewed }));
+      return out;
+    } catch (e) {
+      console.warn("Supabase read failed, using memory:", e.message);
+      return { ...memory.vocab_progress };
+    }
+  },
+
+  async setVocabStatus(wordId, status) {
+    const now = new Date().toISOString();
+    memory.vocab_progress[wordId] = { status, last_reviewed: now };
+    if (!client) return;
+    try {
+      await client.from("vocab_progress").upsert({ word_id: wordId, status, last_reviewed: now });
+    } catch (e) {
+      console.warn("Supabase write failed, kept in memory only:", e.message);
+    }
   },
 };
