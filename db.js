@@ -178,4 +178,28 @@ export const DB = {
       console.warn("Supabase write failed, kept in memory only:", e.message);
     }
   },
+
+  async clearGrammarProgress() {
+    memory.skill_scores = {};
+    memory.attempts_log = [];
+    memory.lessons_completed = {};
+    if (!client) return;
+    try {
+      await client.from("skill_scores").delete().neq("skill_id", "__never__");
+      await client.from("attempts_log").delete().neq("id", -1);
+      await client.from("lessons_completed").delete().neq("lesson_key", "__never__");
+    } catch (e) {
+      console.warn("Supabase clear failed:", e.message);
+    }
+  },
+
+  async clearVocabProgress() {
+    memory.vocab_progress = {};
+    if (!client) return;
+    try {
+      await client.from("vocab_progress").delete().neq("word_id", "__never__");
+    } catch (e) {
+      console.warn("Supabase clear failed:", e.message);
+    }
+  },
 };
