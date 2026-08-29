@@ -19,6 +19,9 @@ const SKILLS = [
   { id: "comparatives",  label: "Comparatives & superlatives",group: "Grammar" },
   { id: "question_words",label: "Question words & syntax",    group: "Grammar" },
   { id: "vocab_daily",   label: "Vocabulary: daily life",     group: "Vocabulary" },
+  { id: "commands",      label: "Commands (imperative)",      group: "Verbs" },
+  { id: "future",        label: "Future tense",                group: "Verbs" },
+  { id: "conditional",   label: "Conditional tense",           group: "Verbs" },
 ];
 
 // ------------------------------------------------------------
@@ -174,6 +177,48 @@ const QUESTIONS = [
     explain:"'Dar un paseo' is the standard phrase for taking a walk." },
   { skill:"vocab_daily", difficulty:2, prompt:"'I'm running late' =", options:["Voy tarde","Estoy tardando","Soy tarde","Voy con tarde"], answer:0,
     explain:"'Voy tarde' is the natural idiom for running late." },
+
+  // commands
+  { skill:"commands", difficulty:1, prompt:"___ (hablar, tú) más despacio.", options:["Habla","Hablas","Hables","Hablar"], answer:0,
+    explain:"Informal affirmative tú commands borrow the él/ella present-tense form: habla." },
+  { skill:"commands", difficulty:1, prompt:"___ (comer, usted) las verduras.", options:["Coma","Come","Comes","Comer"], answer:0,
+    explain:"Formal usted commands use the present subjunctive form: coma." },
+  { skill:"commands", difficulty:2, prompt:"No ___ (hablar, tú) tan rápido.", options:["hables","habla","hablas","hablo"], answer:0,
+    explain:"Negative tú commands switch to the present subjunctive: no hables." },
+  { skill:"commands", difficulty:2, prompt:"___ (cerrar, ustedes) la puerta, por favor.", options:["Cierren","Cierran","Cierra","Cierre"], answer:0,
+    explain:"Ustedes commands use the present subjunctive ustedes form: cierren." },
+  { skill:"commands", difficulty:3, prompt:"___ (poner, tú) la mesa.", options:["Pon","Pones","Ponga","Pongas"], answer:0,
+    explain:"'Poner' has an irregular affirmative tú command: pon (not the expected 'pona')." },
+  { skill:"commands", difficulty:3, prompt:"No ___ (ir, tú) allí solo.", options:["vayas","vas","va","ve"], answer:0,
+    explain:"Negative tú command of 'ir' uses the subjunctive: no vayas." },
+
+  // future
+  { skill:"future", difficulty:1, prompt:"Yo ___ (viajar) a España el próximo año.", options:["viajaré","viajo","viajaba","viajaría"], answer:0,
+    explain:"Regular future: add -é directly to the infinitive, viajar+é." },
+  { skill:"future", difficulty:1, prompt:"Nosotros ___ (comer) a las ocho.", options:["comeremos","comemos","comíamos","comeríamos"], answer:0,
+    explain:"Regular future, nosotros: comer+emos." },
+  { skill:"future", difficulty:2, prompt:"Ella ___ (tener) tiempo mañana.", options:["tendrá","tendría","tenía","tiene"], answer:0,
+    explain:"'Tener' has an irregular future stem: tendr-, + á for ella." },
+  { skill:"future", difficulty:2, prompt:"Tú ___ (hacer) la tarea esta noche.", options:["harás","haces","hacías","harías"], answer:0,
+    explain:"'Hacer' has an irregular future stem: har-, + ás for tú." },
+  { skill:"future", difficulty:3, prompt:"Nosotros ___ (poder) ir a la fiesta.", options:["podremos","podemos","podríamos","podíamos"], answer:0,
+    explain:"'Poder' has an irregular future stem: podr-, + emos for nosotros." },
+  { skill:"future", difficulty:3, prompt:"Ellos ___ (salir) temprano mañana.", options:["saldrán","salen","saldrían","salían"], answer:0,
+    explain:"'Salir' has an irregular future stem: saldr-, + án for ellos." },
+
+  // conditional
+  { skill:"conditional", difficulty:1, prompt:"Yo ___ (viajar) si tuviera dinero.", options:["viajaría","viajaré","viajaba","viajo"], answer:0,
+    explain:"Regular conditional: add -ía directly to the infinitive, viajar+ía." },
+  { skill:"conditional", difficulty:1, prompt:"Nosotros ___ (comer) allí si pudiéramos.", options:["comeríamos","comeremos","comíamos","comemos"], answer:0,
+    explain:"Regular conditional, nosotros: comer+íamos." },
+  { skill:"conditional", difficulty:2, prompt:"Ella ___ (tener) más tiempo si no trabajara tanto.", options:["tendría","tendrá","tenía","tiene"], answer:0,
+    explain:"Same irregular stem as the future (tendr-), + ía for ella." },
+  { skill:"conditional", difficulty:2, prompt:"¿___ (tú / poder) ayudarme?", options:["Podrías","Puedes","Podrás","Pudiste"], answer:0,
+    explain:"Conditional 'podrías' softens a request — a common polite pattern." },
+  { skill:"conditional", difficulty:3, prompt:"Nosotros ___ (decir) la verdad en esa situación.", options:["diríamos","decimos","dijimos","diremos"], answer:0,
+    explain:"'Decir' has an irregular stem (dir-) shared by future and conditional, + íamos for nosotros." },
+  { skill:"conditional", difficulty:3, prompt:"Yo ___ (querer) más información antes de decidir.", options:["querría","quiero","quería","querré"], answer:0,
+    explain:"Conditional of 'querer' softens the request; in casual speech many people say 'quisiera' instead, which is also polite but is actually an imperfect subjunctive form doing the same job." },
 ];
 
 // ------------------------------------------------------------
@@ -421,6 +466,57 @@ const LESSONS = {
       { prompt: "'To take a long time' =", answer: "tardar" },
     ],
   }],
+  commands: [{
+    title: "Commands (imperative) — telling people what to do",
+    explain: "Informal tú commands: affirmative uses the él/ella present-tense form (habla, come, escribe); negative switches to the present subjunctive tú form (no hables, no comas). Formal usted/ustedes commands always use the subjunctive form, both affirmative and negative. A handful of tú affirmative commands are irregular and worth memorizing as a set: di, haz, ve, pon, sal, ten, ven, sé.",
+    examples: ["Habla más despacio, por favor. (tú, affirmative)", "No hables tan rápido. (tú, negative)", "Coma las verduras. (usted, formal)"],
+    practice: [
+      { prompt: "___ (hablar, tú) con tu hermano.", answer: "Habla" },
+      { prompt: "No ___ (hablar, tú) tan alto.", answer: "hables" },
+      { prompt: "___ (comer, usted) despacio.", answer: "Coma" },
+      { prompt: "___ (escribir, ustedes) sus nombres aquí.", answer: "Escriban" },
+      { prompt: "___ (poner, tú) la mesa.", answer: "Pon" },
+      { prompt: "No ___ (ir, tú) solo.", answer: "vayas" },
+      { prompt: "___ (hacer, tú) la tarea ahora.", answer: "Haz" },
+      { prompt: "___ (venir, tú) aquí.", answer: "Ven" },
+      { prompt: "No ___ (decir, tú) mentiras.", answer: "digas" },
+      { prompt: "___ (salir, usted) por esa puerta.", answer: "Salga" },
+    ],
+  }],
+  future: [{
+    title: "Future tense — will do",
+    explain: "Regular future tense adds endings directly onto the infinitive, no stem changes: hablar→hablaré, comer→comeré, vivir→viviré. About a dozen common verbs use a contracted irregular stem instead: tener→tendr-, hacer→har-, poder→podr-, decir→dir-, salir→saldr-, venir→vendr-, poner→pondr-, saber→sabr-, querer→querr-. Once you've learned that stem, the endings themselves (-é, -ás, -á, -emos, -án) are always regular.",
+    examples: ["Mañana hablaré con ella.", "El año que viene tendremos más tiempo.", "¿Qué harás este fin de semana?"],
+    practice: [
+      { prompt: "Yo ___ (viajar) a España el próximo año.", answer: "viajaré" },
+      { prompt: "Nosotros ___ (comer) a las ocho.", answer: "comeremos" },
+      { prompt: "Ella ___ (tener) tiempo mañana.", answer: "tendrá" },
+      { prompt: "Tú ___ (hacer) la tarea esta noche.", answer: "harás" },
+      { prompt: "Nosotros ___ (poder) ir a la fiesta.", answer: "podremos" },
+      { prompt: "Ellos ___ (salir) temprano mañana.", answer: "saldrán" },
+      { prompt: "Yo ___ (saber) el resultado pronto.", answer: "sabré" },
+      { prompt: "Tú ___ (venir) a la boda, ¿verdad?", answer: "vendrás" },
+      { prompt: "Nosotros ___ (poner) la mesa antes de las siete.", answer: "pondremos" },
+      { prompt: "Ella ___ (decir) la verdad al final.", answer: "dirá" },
+    ],
+  }],
+  conditional: [{
+    title: "Conditional tense — would do",
+    explain: "The conditional uses the exact same stems as the future — including the same dozen irregulars (tendr-, har-, podr-, dir-, saldr-, etc.) — but swaps in -ía endings instead: hablaría, comería, viviría. It's used for hypotheticals ('I would travel if...'), polite requests ('¿Podrías ayudarme?'), and reporting what someone said they would do.",
+    examples: ["Yo viajaría si tuviera dinero.", "¿Podrías ayudarme con esto?", "Ella dijo que vendría más tarde."],
+    practice: [
+      { prompt: "Yo ___ (viajar) si tuviera dinero.", answer: "viajaría" },
+      { prompt: "Nosotros ___ (comer) allí si pudiéramos.", answer: "comeríamos" },
+      { prompt: "Ella ___ (tener) más tiempo si no trabajara tanto.", answer: "tendría" },
+      { prompt: "¿___ (tú / poder) ayudarme?", answer: "Podrías" },
+      { prompt: "Nosotros ___ (decir) la verdad en esa situación.", answer: "diríamos" },
+      { prompt: "Yo ___ (querer) más información antes de decidir.", answer: "querría" },
+      { prompt: "¿___ (usted / poder) repetir la pregunta?", answer: "Podría" },
+      { prompt: "Ellos ___ (hacer) lo mismo en tu lugar.", answer: "harían" },
+      { prompt: "Tú ___ (venir) si te invitara, ¿verdad?", answer: "vendrías" },
+      { prompt: "Tú ___ (saber) qué hacer en esa situación.", answer: "sabrías" },
+    ],
+  }],
 };
 
 // ------------------------------------------------------------
@@ -465,6 +561,32 @@ const VOCAB_CATEGORIES = [
     { es: "almorzar", en: "to have lunch" }, { es: "cenar", en: "to have dinner" }, { es: "acostarse", en: "to go to bed" },
     { es: "descansar", en: "to rest" }, { es: "limpiar", en: "to clean" }, { es: "cocinar", en: "to cook" },
   ]},
+  { id: "food_dining", label: "Food & Dining / Comida y Restaurante", words: [
+    { es: "el desayuno", en: "breakfast" }, { es: "el almuerzo", en: "lunch" }, { es: "la cena", en: "dinner" },
+    { es: "el menú", en: "menu" }, { es: "la cuenta", en: "the bill/check" }, { es: "el mesero / la mesera", en: "waiter/waitress" },
+    { es: "la propina", en: "tip" }, { es: "el plato", en: "dish/plate" }, { es: "la bebida", en: "drink" },
+    { es: "el postre", en: "dessert" }, { es: "tener hambre", en: "to be hungry" }, { es: "tener sed", en: "to be thirsty" },
+  ]},
+  { id: "travel", label: "Travel / Viajes", words: [
+    { es: "el aeropuerto", en: "airport" }, { es: "el boleto", en: "ticket" }, { es: "la maleta", en: "suitcase" },
+    { es: "el pasaporte", en: "passport" }, { es: "la aduana", en: "customs" }, { es: "el vuelo", en: "flight" },
+    { es: "la llegada", en: "arrival" }, { es: "la salida", en: "departure/exit" }, { es: "el hotel", en: "hotel" },
+    { es: "la reserva", en: "reservation" }, { es: "hacer las maletas", en: "to pack" }, { es: "perder el vuelo", en: "to miss the flight" },
+  ]},
+  { id: "emotions", label: "Emotions / Emociones", words: [
+    { es: "feliz", en: "happy" }, { es: "triste", en: "sad" }, { es: "enojado", en: "angry" },
+    { es: "nervioso", en: "nervous" }, { es: "emocionado", en: "excited" }, { es: "preocupado", en: "worried" },
+    { es: "sorprendido", en: "surprised" }, { es: "tranquilo", en: "calm" }, { es: "orgulloso", en: "proud" },
+    { es: "celoso", en: "jealous" }, { es: "avergonzado", en: "embarrassed" }, { es: "agradecido", en: "grateful" },
+  ]},
+  { id: "idioms", label: "Idiomatic Expressions / Modismos", words: [
+    { es: "costar un ojo de la cara", en: "to cost an arm and a leg" }, { es: "estar en las nubes", en: "to have your head in the clouds" },
+    { es: "tomar el pelo", en: "to pull someone's leg / tease" }, { es: "no tener pelos en la lengua", en: "to not mince words" },
+    { es: "ser pan comido", en: "to be a piece of cake (very easy)" }, { es: "meter la pata", en: "to put your foot in it / mess up" },
+    { es: "echar de menos", en: "to miss (someone/something)" }, { es: "dar en el clavo", en: "to hit the nail on the head" },
+    { es: "estar como una cabra", en: "to be a bit crazy" }, { es: "ponerse las pilas", en: "to get your act together" },
+    { es: "no dar pie con bola", en: "to not get anything right" }, { es: "tener mala pata", en: "to have bad luck" },
+  ]},
 ];
 
 
@@ -485,6 +607,12 @@ const REFERENCE = [
     a:"A small set of common adjectives (grande, bueno, malo, primero, tercero, alguno, ninguno) drop their final vowel/syllable when placed directly before a singular noun — a holdover sound-smoothing pattern from Old Spanish. Grande is the trickiest because it also changes meaning: 'un gran hombre' (a great man) vs 'un hombre grande' (a big/tall man)." },
   { skill:"present", q:"Why do verbs like 'pedir' change their stem (e→i) but others like 'hablar' don't?",
     a:"Stem-changing verbs (o→ue, e→ie, e→i) shifted their vowel sound historically when stressed in speech, and that shift got locked into the spelling for the forms where the stress lands on the stem — everywhere except nosotros/vosotros, which is why those two forms look regular while the rest look 'irregular'." },
+  { skill:"commands", q:"Why do negative tú commands use a different form than affirmative ones?",
+    a:"Affirmative tú commands historically borrowed the él/ella present-tense form (habla, come) as a shortcut. Negative commands, though, use the present subjunctive — the same 'not-yet-real / directive' mood used elsewhere for wishes and doubts. That's why 'Habla' (do speak) and 'No hables' (don't speak) look like they're built differently: they genuinely come from two different grammatical sources." },
+  { skill:"future", q:"Why do verbs like 'tener' and 'hacer' use a different stem in the future tense?",
+    a:"The future tense actually formed historically from the infinitive plus a conjugated form of 'haber' (hablar-he → hablaré), which fused into one word over centuries. A handful of very common verbs had their infinitive stem worn down or contracted in everyday speech before the endings attached — tener→tendr-, hacer→har-, decir→dir- — and those contracted forms are what stuck. The endings themselves never change; only the stem for these dozen verbs is irregular." },
+  { skill:"conditional", q:"Why does the conditional use the same irregular stems as the future?",
+    a:"Both tenses attach their endings to the same base — for regular verbs that's the full infinitive, and for the same dozen irregular verbs it's the same contracted stem (tendr-, har-, podr-, etc.). Future and conditional differ only in which endings they add onto that shared stem: future uses -é/-ás/-á/-emos/-án, conditional uses -ía/-ías/-ía/-íamos/-ían. Learn the irregular stems once and they cover both tenses." },
 ];
 
 // Flat search index combining reference + lesson explanations,
