@@ -145,6 +145,7 @@ async function render() {
   skillScores = await DB.getAllSkillScores();
   if (currentView === "diagnostic") renderDiagnostic();
   else if (currentView === "lessons") renderLessons();
+  else if (currentView === "vocab") renderVocabCategories();
   else if (currentView === "progress") renderProgress();
   else if (currentView === "reference") renderReference();
   else if (currentView === "settings") renderSettings();
@@ -157,38 +158,84 @@ async function render() {
 let diagQueue = [];
 let diagIndex = 0;
 let diagResults = [];
+let currentQOptions = []; // shuffled {opt, correct} for the active question
 
-function buildDiagnosticQueue() {
-  // one pass through every question, shuffled, capped at 24 per run
-  // so an initial diagnostic and later re-checks stay a similar length
-  const shuffled = [...QUESTIONS].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(24, shuffled.length));
+const DIAGNOSTIC_VERSIONS = {
+  beginning: {
+    label: "Beginning of Year",
+    skills: SKILLS.map(s => s.id).filter(id => id !== "subjunctive" && id !== "pret_vs_imp"),
+    maxDifficulty: 1,
+    instructions: "A short baseline check covering foundational topics you likely already know from Spanish 1–2: present tense, ser/estar, basic vocabulary, object pronouns, and similar. It intentionally skips more advanced topics like the subjunctive and the preterite-vs-imperfect distinction — those show up in the later checks. Use this to see where you're starting from.",
+  },
+  middle: {
+    label: "Middle of Year",
+    skills: SKILLS.map(s => s.id).filter(id => id !== "subjunctive"),
+    maxDifficulty: 2,
+    instructions: "A mid-point check that adds more nuance — including choosing between preterite and imperfect — and slightly harder questions across every foundational topic. Still skips the subjunctive, which is the most advanced topic covered here.",
+  },
+  end: {
+    label: "End of Year",
+    skills: SKILLS.map(s => s.id),
+    maxDifficulty: 3,
+    instructions: "The full, comprehensive check — every topic in this app, including the subjunctive, at full difficulty. This gives the most complete picture of where things stand across all skill areas.",
+  },
+};
+
+function questionsForVersion(versionKey) {
+  const v = DIAGNOSTIC_VERSIONS[versionKey];
+  return QUESTIONS.filter(q => v.skills.includes(q.skill) && q.difficulty <= v.maxDifficulty);
+}
+
+function buildDiagnosticQueue(versionKey) {
+  // Includes EVERY matching question for every included skill — not a random
+  // sample — so each skill area gets enough questions to actually show
+  // mastery (or lack of it), rather than resting on one lucky/unlucky guess.
+  const pool = questionsForVersion(versionKey);
+  return [...pool].sort(() => Math.random() - 0.5);
 }
 
 function renderDiagnostic() {
-  const attemptedSkills = Object.keys(skillScores).length;
   app.innerHTML = `
     <section class="view">
       <div class="card intro-card">
-        <h2>${attemptedSkills ? "Retake the diagnostic / Repetir el diagnóstico" : "Initial diagnostic / Diagnóstico inicial"}</h2>
-        <p>${attemptedSkills
-          ? "Retake the diagnostic anytime — it measures your current level in each area and updates your progress."
-          : "A quick, honest look at where you stand today. About 24 questions mixing Spanish 1–2 topics and a bit beyond. No pressure — it's just a starting point."}</p>
-        <button class="btn-primary" id="startDiag">Start diagnostic / Empezar diagnóstico</button>
+        <h2>Choose a check-in / Elige un diagnóstico</h2>
+        <p>Three versions, each covering more ground than the last. Take Beginning of Year first if this is your first time — the others build on it.</p>
       </div>
+      ${Object.entries(DIAGNOSTIC_VERSIONS).map(([key, v]) => {
+        const count = questionsForVersion(key).length;
+        return `
+        <div class="card version-card">
+          <h3>${v.label}</h3>
+          <p>${v.instructions}</p>
+          <p class="muted small">${count} questions · covers ${v.skills.length} of ${SKILLS.length} skill areas</p>
+          <button class="btn-primary start-version" data-version="${key}">Start ${v.label}</button>
+        </div>`;
+      }).join("")}
     </section>
   `;
-  $("#startDiag").addEventListener("click", () => {
-    diagQueue = buildDiagnosticQueue();
-    diagIndex = 0;
-    diagResults = [];
-    renderDiagQuestion();
+  $$(".start-version").forEach(btn => {
+    btn.addEventListener("click", () => {
+      diagQueue = buildDiagnosticQueue(btn.dataset.version);
+      diagIndex = 0;
+      diagResults = [];
+      renderDiagQuestion();
+    });
   });
+}
+
+function shuffleOptions(q) {
+  const arr = q.options.map((opt, i) => ({ opt, correct: i === q.answer }));
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
 function renderDiagQuestion() {
   if (diagIndex >= diagQueue.length) return renderDiagSummary();
   const q = diagQueue[diagIndex];
+  currentQOptions = shuffleOptions(q);
   app.innerHTML = `
     <section class="view">
       <div class="progress-bar"><div class="progress-fill" style="width:${(diagIndex / diagQueue.length) * 100}%"></div></div>
@@ -196,7 +243,7 @@ function renderDiagQuestion() {
       <div class="card question-card">
         <h3>${q.prompt} ${speakBtnHtml("speak-prompt")}</h3>
         <div class="options" id="options">
-          ${q.options.map((opt, i) => `<button class="option-btn" data-i="${i}">${opt}</button>`).join("")}
+          ${currentQOptions.map((o, i) => `<button class="option-btn" data-i="${i}">${o.opt}</button>`).join("")}
         </div>
         <div class="explain-box" id="explainBox" style="display:none;"></div>
         <button class="btn-primary" id="nextBtn" style="display:none;">Next / Siguiente</button>
@@ -210,11 +257,11 @@ function renderDiagQuestion() {
       if (answered) return;
       answered = true;
       const i = Number(btn.dataset.i);
-      const correct = i === q.answer;
+      const correct = currentQOptions[i].correct;
       diagResults.push({ skill: q.skill, correct });
       $$(".option-btn").forEach((b, bi) => {
         b.disabled = true;
-        if (bi === q.answer) b.classList.add("correct");
+        if (currentQOptions[bi].correct) b.classList.add("correct");
         else if (bi === i) b.classList.add("incorrect");
       });
       const box = $("#explainBox");
@@ -390,6 +437,117 @@ function renderLessonDetail(skillId, index) {
     // small score nudge from lesson completion, not a full diagnostic weight
     await DB.recordAttempt(skillId, true, "lesson");
     renderLessons();
+  });
+}
+
+// ============================================================
+// VOCABULARY — flashcards, independent from the grammar skills
+// ============================================================
+let vocabSession = []; // queue of { catId, idx, es, en } — front of array = current card
+let vocabKnownThisSession = 0;
+let vocabStartCount = 0;
+
+async function renderVocabCategories() {
+  const progress = await DB.getVocabProgress();
+  const cards = VOCAB_CATEGORIES.map(cat => {
+    const known = cat.words.filter((_, i) => progress[`${cat.id}:${i}`]?.status === "known").length;
+    return `
+      <div class="card vocab-cat-card">
+        <div class="vocab-cat-top">
+          <h3>${cat.label}</h3>
+          <span class="mini-score" style="color:${scoreColor(Math.round((known / cat.words.length) * 100))}">${known}/${cat.words.length} known</span>
+        </div>
+        <div class="vocab-cat-actions">
+          <button class="btn-primary practice-cat" data-cat="${cat.id}" data-mode="unknown">Practice / Practicar</button>
+          ${known > 0 ? `<button class="btn-secondary practice-cat" data-cat="${cat.id}" data-mode="all">Review all / Repasar todo</button>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+
+  app.innerHTML = `
+    <section class="view">
+      <h2 class="section-title">Vocabulary / Vocabulario</h2>
+      <p class="muted">Flashcards by topic. Mark each card "I know it" or "Don't know yet" — cards you don't know come back around until you do.</p>
+      <div class="vocab-cat-grid">${cards}</div>
+    </section>
+  `;
+
+  $$(".practice-cat").forEach(btn => {
+    btn.addEventListener("click", () => startVocabSession(btn.dataset.cat, btn.dataset.mode));
+  });
+}
+
+async function startVocabSession(catId, mode) {
+  const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
+  const progress = await DB.getVocabProgress();
+  let words = cat.words.map((w, i) => ({ catId, idx: i, es: w.es, en: w.en, wordId: `${catId}:${i}` }));
+  if (mode === "unknown") {
+    words = words.filter(w => progress[w.wordId]?.status !== "known");
+  }
+  if (words.length === 0) {
+    alert("Every card in this category is already marked known! Try 'Review all' to practice them anyway.");
+    return;
+  }
+  vocabSession = [...words].sort(() => Math.random() - 0.5);
+  vocabStartCount = vocabSession.length;
+  vocabKnownThisSession = 0;
+  renderVocabCard();
+}
+
+function renderVocabCard() {
+  if (vocabSession.length === 0) {
+    app.innerHTML = `
+      <section class="view">
+        <div class="card">
+          <h2>Nice work! / ¡Buen trabajo!</h2>
+          <p>You marked ${vocabKnownThisSession} card${vocabKnownThisSession === 1 ? "" : "s"} as known this session.</p>
+          <button class="btn-primary" id="backToVocab">Back to categories / Volver a categorías</button>
+        </div>
+      </section>
+    `;
+    $("#backToVocab").addEventListener("click", renderVocabCategories);
+    return;
+  }
+  const card = vocabSession[0];
+  const remaining = vocabSession.length;
+  const doneCount = Math.max(0, vocabStartCount - remaining);
+  app.innerHTML = `
+    <section class="view">
+      <div class="progress-bar"><div class="progress-fill" style="width:${(doneCount / vocabStartCount) * 100}%"></div></div>
+      <p class="q-counter">${remaining} card${remaining === 1 ? "" : "s"} left in this session</p>
+      <div class="card flashcard" id="flashcard">
+        <div class="flashcard-face">
+          <span class="flashcard-word">${card.es}</span>
+          ${speakBtnHtml("speak-flashcard")}
+        </div>
+        <div class="flashcard-back" id="flashcardBack" style="display:none;">
+          <span class="flashcard-en">${card.en}</span>
+        </div>
+        <button class="btn-secondary" id="revealBtn">Show answer / Mostrar respuesta</button>
+        <div class="flashcard-actions" id="flashcardActions" style="display:none;">
+          <button class="btn-danger" id="dontKnowBtn">Don't know yet / Aún no</button>
+          <button class="btn-primary" id="knowBtn">I know it / Lo sé</button>
+        </div>
+      </div>
+    </section>
+  `;
+  $(".speak-flashcard").addEventListener("click", () => speak(card.es));
+  $("#revealBtn").addEventListener("click", () => {
+    $("#flashcardBack").style.display = "block";
+    $("#flashcardActions").style.display = "flex";
+    $("#revealBtn").style.display = "none";
+  });
+  $("#dontKnowBtn").addEventListener("click", async () => {
+    await DB.setVocabStatus(card.wordId, "learning");
+    vocabSession.shift();
+    vocabSession.push(card); // comes back around later in this session
+    renderVocabCard();
+  });
+  $("#knowBtn").addEventListener("click", async () => {
+    await DB.setVocabStatus(card.wordId, "known");
+    vocabKnownThisSession += 1;
+    vocabSession.shift();
+    renderVocabCard();
   });
 }
 
