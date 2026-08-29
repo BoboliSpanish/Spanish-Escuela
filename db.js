@@ -25,7 +25,8 @@ const memory = {
   attempts_log: [],     // {skill_id, correct, source, created_at}
   lessons_completed: {},// lesson_key -> completed_at
   daily_activity: {},   // date -> true
-  vocab_progress: {},   // word_id -> {status, last_reviewed}
+  vocab_progress: {},   // word_id -> {level, next_due, last_reviewed}
+  custom_vocab: [],     // {id, es, en, created_at}
 };
 
 export const DB = {
@@ -168,14 +169,54 @@ export const DB = {
     }
   },
 
-  async setVocabStatus(wordId, status) {
+  async getVocabProgress() {
+    if (!client) return { ...memory.vocab_progress };
+    try {
+      const { data, error } = await client.from("vocab_progress").select("*");
+      if (error) throw error;
+      const out = {};
+      data.forEach(row => (out[row.word_id] = { level: row.level ?? 0, next_due: row.next_due, last_reviewed: row.last_reviewed }));
+      return out;
+    } catch (e) {
+      console.warn("Supabase read failed, using memory:", e.message);
+      return { ...memory.vocab_progress };
+    }
+  },
+
+  async setVocabReview(wordId, level, nextDueISO) {
     const now = new Date().toISOString();
-    memory.vocab_progress[wordId] = { status, last_reviewed: now };
+    memory.vocab_progress[wordId] = { level, next_due: nextDueISO, last_reviewed: now };
     if (!client) return;
     try {
-      await client.from("vocab_progress").upsert({ word_id: wordId, status, last_reviewed: now });
+      await client.from("vocab_progress").upsert({ word_id: wordId, level, next_due: nextDueISO, last_reviewed: now });
     } catch (e) {
       console.warn("Supabase write failed, kept in memory only:", e.message);
+    }
+  },
+
+  async getCustomVocab() {
+    if (!client) return [...memory.custom_vocab];
+    try {
+      const { data, error } = await client.from("custom_vocab").select("*").order("created_at", { ascending: true });
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      console.warn("Supabase read failed, using memory:", e.message);
+      return [...memory.custom_vocab];
+    }
+  },
+
+  async addCustomWord(es, en) {
+    const now = new Date().toISOString();
+    if (!client) {
+      const id = memory.custom_vocab.length ? Math.max(...memory.custom_vocab.map(w => w.id)) + 1 : 1;
+      memory.custom_vocab.push({ id, es, en, created_at: now });
+      return;
+    }
+    try {
+      await client.from("custom_vocab").insert({ es, en });
+    } catch (e) {
+      console.warn("Supabase write failed:", e.message);
     }
   },
 
