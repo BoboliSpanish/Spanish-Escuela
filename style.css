@@ -367,5 +367,7 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
 
 @media (max-width: 480px) {
   .brand-text h1 { font-size: 21px; }
-  .stamp-label { display: none; }
+  .stamp-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .stamp-label { font-size: 10px; }
+  .stamp-score { font-size: 13px; }
 }
