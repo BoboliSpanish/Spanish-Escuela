@@ -86,15 +86,23 @@ There are three check-ins, each covering more ground than the last:
 
 Each version includes **every** matching question for every included skill area (not a random sample), so there's enough evidence per topic to actually reflect mastery rather than one lucky or unlucky guess. Answer order is shuffled every time, so the correct answer isn't always in the same position.
 
-17 grammar skills are covered in total, including present/preterite/imperfect tenses, ser/estar, reflexive verbs, gustar-type verbs, object pronouns, por/para, adjective agreement, comparatives, question words, commands (imperative), future tense, and conditional tense.
+19 grammar skills are covered in total, including present/preterite/imperfect tenses, ser/estar, reflexive verbs, gustar-type verbs, object pronouns, por/para, adjective agreement, comparatives, question words, commands (imperative), future tense, conditional tense, present/past perfect, and imperfect subjunctive with si clauses.
 
 ## Vocabulary flashcards
 
-Separate from the grammar skills, the **Vocabulary** tab has 10 topic-based flashcard sets (fruits, clothing, family, house & rooms, colors & numbers, daily routine, food & dining, travel, emotions, and idiomatic expressions — 120 words/phrases total). Each card can be marked "I know it" or "Don't know yet" — unknown cards keep coming back around in the same session until marked known, and known/unknown status is saved to Supabase so it persists across visits. Add more categories or words by editing `VOCAB_CATEGORIES` in `data.js`.
+The **Vocabulary** tab has 10 built-in topic-based flashcard sets (fruits, clothing, family, house & rooms, colors & numbers, daily routine, food & dining, travel, emotions, and idiomatic expressions — 120 words/phrases total), plus a "My Words" set she can add to herself directly from the app (a small form at the top of the tab).
+
+Flashcards now use real spaced repetition: each card has a level (0–5) and a next-review date. Marking a card "I know it" pushes its next review further out (1 day → 3 → 7 → 14 → 30), while "Don't know yet" resets it to due immediately and brings it back later in the same session. "Practice due" only shows cards that are actually due; "Review all" ignores the schedule and drills everything in that category regardless.
+
+If you're upgrading from an earlier version of this app, re-run `supabase-schema.sql` — it adds the new `level`/`next_due` columns and the `custom_vocab` table without touching existing data. Previously-marked "known" words will simply show up for one more review, since a level isn't retroactively assigned to them — after that first review they'll follow the normal schedule.
+
+## Reading comprehension
+
+The **Reading** tab has short passages (Beginner/Intermediate/Advanced) with comprehension questions — practice following extended text instead of isolated sentences, one of the better predictors of real reading fluency. Add more passages by extending the `READINGS` array in `data.js`.
 
 ## Mixed Review
 
-At the top of the Lessons tab, "Mixed Review" builds one combined session: 5 practice items from your current weakest grammar skill, plus 5 vocabulary words you haven't marked known yet, shuffled together. A lighter-weight way to touch both grammar and vocab without switching tabs.
+At the top of the Lessons tab, "Mixed Review" builds one combined session: 5 practice items from your current weakest grammar skill, plus 5 vocabulary words that are due for review (including "My Words"), shuffled together. A lighter-weight way to touch both grammar and vocab without switching tabs.
 
 ## Settings: data export and granular reset
 
@@ -110,4 +118,4 @@ Settings now has a "Download my data" button that exports everything (scores, di
   two people on the same Supabase project, you'd add a `user_id` column to
   each table and a simple name-select on load — ask me if you want this
   built out.
-- **How comprehensive is this?** Better than before, but still not a complete curriculum. Not yet covered: imperfect subjunctive and *si*-clauses ("if I had..."), present/past perfect tenses, reading passages, open-ended writing practice, true spaced-repetition scheduling for vocab (right now it's just known/not-known), an AI-guided conversation-practice mode, letting the learner add her own vocab through the app itself, a timed/exam-style quiz mode, and PDF export. All addable the same way as everything else here: extending `data.js` and `app.js`.
+- **How comprehensive is this?** Better than before, but still not a complete curriculum. Not yet covered: an AI-guided conversation-practice mode, a timed/exam-style quiz mode, and PDF export. All addable the same way as everything else here: extending `data.js` and `app.js`.
